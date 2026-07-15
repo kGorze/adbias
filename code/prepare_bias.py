@@ -1,9 +1,12 @@
 #!/usr/bin/python
 
 # import packages
+#to jest niesamowite, że w pythonie trzeba takie coś zrobić oraz wcześniej o tym nie pomyśleli
 from __future__ import division
 from __future__ import with_statement
 from __future__ import absolute_import
+
+
 import sys
 import os
 import math as mt
@@ -40,15 +43,19 @@ def optparser(argv=sys.argv[1:]):
 	# initiate dictionary with arguments
 	args = dict()
 	
+
 	# add bias parameter file name to dictionary
+	# fajnie zrobiony ten parser ale czy nie można było użyć zwykłego parsera a nie sys.argv[1:]?
 	if '-b' in argv:
 		bias_file_index = argv.index('-b') + 1
+		# to jest ta różnica, gdzie samemu trzeba badać co pobieramy
 		args.update({'bias_file' : argv[bias_file_index]})
 	else:
 		print 'Error: -b argument required indicating bias parameter file'
 		print usage
 		sys.exit(2)		
 	
+	#reszta to samo
 	# add gpf file name to dictionary
 	if '-g' in argv:
 		gpf_index = argv.index('-g') + 1
@@ -70,6 +77,7 @@ def optparser(argv=sys.argv[1:]):
 		args.update({'map_file' : argv[map_index]})
 		
 	# test number of arguments
+	#to pokazuje jak źle ten program jest zrobiony konceptualnie
 	if len(argv) < 4:
 		print 'Error: invalid number of arguments\n'
 		print 'Requires -b and at least one of the other arguments (-g, -d, -D or -m)'
@@ -94,16 +102,13 @@ class Bias_Sites(object):
 	
 	# parse bias parameter file and get coordinates, energy, radius and type of bias sites
 	def parse_file(self, bias_file):
-
 		# open bias parameter file
 		with open(bias_file) as f:
-			
 			# initiate BS list
 			BS = []
-
 			# readlines puts each line of the file as an element of the list
+			# nie używają i w tej funkcji 
 			for i, line in enumerate(f.readlines()):
-				
 				# line has a list with each space or tab seaprated string of the line as element
 				line = line.split()
 				
@@ -112,14 +117,20 @@ class Bias_Sites(object):
 					print 'Error: invalid number of columns in bias parameter file'
 					sys.exit(2)
 				# only operate in numeric lines (skip title line)
+
+				# jakiś dziwny sposób bez regexa, dodatkowo silent skip miejsc, które mogą być danymi w innym formacie
 				elif (((line[0].split('.')[0]).strip("-").isnumeric())):
 					# create a dictionary (bs) with bias site data
 					bs = {	'x':float(line[0]),
 							'y':float(line[1]),
 							'z':float(line[2]),
 							'radius':float(line[4]),
+							
+							#strip kompletnie niepotrzebny
 							'int_type':str(line[5].lstrip('\n')) }
+					
 					# energy bias definition (negative number)
+					#co to ma znaczyć??
 					if float(line[3]) < 0:
 						bs.update( {'DG':float(line[3]) } )
 					# PFP bias definition (positive number)
@@ -164,20 +175,26 @@ class Grid(object):
 			while line:
 				# get ligang atom types
 				# consider line with ligand types having a comment (#) or not
+				#ligand types moze istniec, gdy dojdzie do lini map
 				if line[0] == 'ligand_types':
 					if '#' in line:
 						last_index = line.index('#')
 						ligand_types = line[1:last_index]
 					else:
 						ligand_types = line[1:]
+				
+
 				# get map names for each atom type
 				elif line[0] == 'map':
+					#brak sprawdzenia zgodnosci liczby wpisow z dlugoscia ligand_types
 					grid.update({'map_' + ligand_types[count_maps] : line[1]})
 					count_maps += 1
 					ref_map = line[1]
 				line = f.readline().split()
 		
 		grid.update({'ligand_types' : ligand_types})
+
+		#mapa moze zostac nieprzypisana i co wtedy?
 		grid.update({'ref_map' : ref_map})
 
 		if not ref_map in [f for f in os.listdir('.') if f.endswith('.map')]:
@@ -223,6 +240,7 @@ class Grid(object):
 	def additional(self, grid):
 		
 		# coordinate limits of the grid (M = max, m = min)
+		#grid robi na tym samym pojęciu obiektu grid?
 		grid.update({'Mx' : grid['CX'] + (grid['NX'] - 1) * grid['spacing'] / 2 })
 		grid.update({'My' : grid['CY'] + (grid['NY'] - 1) * grid['spacing'] / 2 })
 		grid.update({'Mz' : grid['CZ'] + (grid['NZ'] - 1) * grid['spacing'] / 2 })
@@ -240,6 +258,7 @@ class Grid(object):
 
 # requires map file in current directory
 # extract grid parameters: spacing, center, points in each direction, total points, coordinate limits
+# dlaczego nie ma dziedziczenia tej klasy, ona się powtarza kompletnie
 class Grid_Only(object):
 
 	''' Returns a dictionary "grid" with grid parameters (spacing, ...)
@@ -402,6 +421,8 @@ class Cubes(object):
 
 		# check if the cube totally fits inside the grid space
 		# if not, remove the points that lie outside and recalculate params
+
+		#problem z usuwaniem punktów bez usuwania ściany czy włączenia i wyłączenia
 		if grid['Mx'] < max_cube_x:
 			total_points = total_points - (max_cube_x - grid['Mx']) / grid['spacing']
 			max_cube_x = grid['Mx']
@@ -469,6 +490,7 @@ class Insert_Bias(object):
 		cubes_don = []
 		cubes_aro = []
 		cubes_map = []
+		#ogromna duplikacja kodu
 		modifications_by_cubes_acc = []
 		modifications_by_cubes_don = []
 		modifications_by_cubes_aro = []
@@ -521,6 +543,8 @@ class Insert_Bias(object):
 			# modify the dummy map with the bias information
 			self.insert_bias(cubes_aro, modifications_lst_arom, grid['basename'] + '.AC.map', grid['basename'] + '.AC.biased.map')
 			# remove the map with 0 energy created for this sake
+			
+			#zle czyszczenie pliku tymczasowego
 			os.remove(grid['basename'] + '.AC.map')
 
 		# for specific map biases
@@ -549,6 +573,7 @@ class Insert_Bias(object):
 		ny = cube['points_cubeMin_gridMin']['y']
 		nz = cube['points_cubeMin_gridMin']['z']
 
+		#problem wymiaru z gdzie w idzie to w nieskonczonosc poza max_cube_z, odleglosc od bias site z dE
 		# iterate times equal to total no. of points in the cube
 		for _ in range(cube['total_points']):
 
@@ -605,6 +630,7 @@ class Insert_Bias(object):
 	# bias sites, only keep the most favorable one
 	def merge_boxes(self, modifications):
 		
+		#martwy kod, energy dictionary jest tylko w srodku if, gdyby modif bylo puste bylby unboundlocalerror
 		if len(modifications) > 0:
 			
 			# transform into "list of tuples" with [point index, energy]
@@ -650,6 +676,8 @@ class Insert_Bias(object):
 		lines = []
 		with open(dat_modif, 'w') as p:
 			p.write(u"\t".join(['x', 'y', 'z', 'point', 'dist', 'E_ori', 'E_modif', 'E_delta', 'radius'])+'\n')
+			
+			#co w przypadku, gdy center_ponint_map nie jest w tym zbiorze
 			for cube in cube_set:
 				line = ["%0.3f" % cube['cube_center']['x'],
 					    "%0.3f" % cube['cube_center']['y'], 
@@ -849,6 +877,7 @@ class Dummies(object):
 		self.add_dummies = self.add_dummy(ligand_filename)
 	
 	# function to get center of mass
+	#klasa ma importy, ktore sa zalezne od kodu gdzdzies indziej(numpy)
 	def center_of_mass(self, Vx, Vy, Vz, mass):
 		cgx = np.sum(Vx*mass)/np.sum(mass)
 		cgy = np.sum(Vy*mass)/np.sum(mass)
@@ -939,6 +968,7 @@ class Dummies(object):
 		""" Class to provide print block and define if it aromatic
 		according to the pdbqt input file
 		"""
+		#mutowalna tablica, która jest dla wszystkich obiektów tej klasy, a nie dla każdego osobno, więc trzeba uważać
 		coordinates = []
 		# prints whole pdbqt block
 		def printBlock(self):
@@ -968,6 +998,7 @@ class Dummies(object):
 		""" return one or more centers of mass for aromatic ring in a unique block
 		"""
 		# set a new object to be manipulated
+		#import tego modulu jest w innym miejscu
 		mol = openbabel.OBMol()
 		obConversion = openbabel.OBConversion()
 		# input and output be the same format (pdbqt)
@@ -1086,6 +1117,8 @@ class Dummies(object):
 					# reset blockstring
 					blockstring = []
 		# remove final empty line
+		
+		#usuwa wszyskie puste linie, nie tylko ostatnią
 		out = os.linesep.join([s for s in out.splitlines() if s])
 		# if there is at least one aromatic ring, print new pdbqt file
 		if arom_flag:
@@ -1129,6 +1162,9 @@ files = optparser()
 biases = Bias_Sites(files['bias_file'])
 
 # establish which type of biases should be applied
+
+
+#dziwny pomysł
 acc_bias = False
 don_bias = False
 aro_bias = False
@@ -1143,6 +1179,7 @@ for i in range(0,len(biases.biassites)):
 	elif biases.biassites[i]['int_type'] == 'map' and not map_bias:
 		map_bias = True
 
+#podział na ify jest bardzo nieczytelny
 # if -m invoked, generate new modified map from original specific map and bias info
 if 'map_file' in files:
 	
