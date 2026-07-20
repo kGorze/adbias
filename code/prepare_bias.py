@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # import packages
 #to jest niesamowite, że w pythonie trzeba takie coś zrobić oraz wcześniej o tym nie pomyśleli
