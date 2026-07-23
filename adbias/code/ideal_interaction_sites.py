@@ -10,7 +10,8 @@ import math as mt
 import numpy as np
 from Bio.PDB import *
 
-# distance (A) between O/N---H in hydrogen bonds
+# distance (A) between O/N---H in hydrogen bonds]
+na to t
 HBOND_DIST = 1.9
 # distance (A) between planes in aromatic interactions
 AROM_DIST = 3.8

@@ -23,32 +23,18 @@ import config as C
 RDLogger.DisableLog("rdApp.warning")
 
 
-def _topology_query(mol: Chem.Mol) -> Chem.Mol:
+def topology_query(mol: Chem.Mol) -> Chem.Mol:
     """
     budujemy z mol wzorzecz do GetSubstructMatches, ktory dopasuje atomy tylko po liczbie atomowej
     """
     query = Chem.RWMol(mol)
-    for atom in query.GetAtoms():
-        query.ReplaceAtomWithQueryAtom(
-            atom.GetIdx(),
-            rdqueries.AtomNumEqualsQueryAtom(atom.GetAtomicNum())
+    for atom_index in range(query.GetNumAtoms()):
+        atomic_number = query.GetAtomWithIdx(atom_index).GetAtomicNum()
+        query.ReplaceAtom(
+            atom_index,
+            rdqueries.AtomNumEqualsQueryAtom(atomic_number),
         )
     return query
-
-#obecnie nieużywane bo jest źle zaprojektowane
-def _neutral_copy(mol):
-    """
-    kopia bez ladunkow formalnych,
-    """
-    rw = Chem.RWMol(mol)
-    for a in rw.GetAtoms():
-        a.SetFormalCharge(0)
-        a.SetNumExplicitHs(0)
-        a.SetNoImplicit(True)
-    m = rw.GetMol()
-    Chem.SanitizeMol(m, sanitizeOps=Chem.SanitizeFlags.SANITIZE_ALL
-                     ^ Chem.SanitizeFlags.SANITIZE_PROPERTIES)
-    return m
 
 
 def _rmsd_by_matches(probe, conf_id, ref):
@@ -56,7 +42,7 @@ def _rmsd_by_matches(probe, conf_id, ref):
     Symetryczny RMSD po wszystkich dopasowaniach grafu
     """
     matches = ref.GetSubstructMatches(
-        _topology_query(probe),
+        topology_query(probe),
         uniquify=False,
         maxMatches=100000
     )
