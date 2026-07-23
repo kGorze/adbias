@@ -1,7 +1,7 @@
 python        3.12.13
 meeko         0.7.1
 molscrub      0.2.2
-rdkit         2026.03.4
+rdkit         2025.03.6
 prody         2.6.1
 vina (API)    1.2.7
 autogrid4     AutoGrid 4.2.7.x 

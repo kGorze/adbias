@@ -1,0 +1,23 @@
+zapisano /home/kgorzelanczyk/adbias/benchmark/versions/comparison_results/comparison_runs.csv
+
+wspolne seedy: 30 przebiegow na wersje
+cel    warunek       wersja    n  top1med bestmed   succ@2A succ_best    score
+------------------------------------------------------------------------------
+6JQR   conventional  legacy    5    11.86    4.86      0.00     0.00   -10.04
+6JQR   conventional  new       5     9.77    5.01      0.00     0.00   -10.66
+6JQR   biased        legacy    5    11.50    3.41      0.00     0.00   -10.62
+6JQR   biased        new       5     9.18    3.65      0.00     0.00   -10.20
+
+3CS9   conventional  legacy    5     0.42    0.42      1.00     1.00   -14.70
+3CS9   conventional  new       5     0.31    0.31      1.00     1.00   -14.41
+3CS9   biased        legacy    5     0.41    0.41      1.00     1.00   -15.32
+3CS9   biased        new       5     0.36    0.36      1.00     1.00   -15.15
+
+5N9R   conventional  legacy    5     0.36    0.36      1.00     1.00   -13.61
+5N9R   conventional  new       5     0.37    0.37      1.00     1.00   -13.45
+5N9R   biased        legacy    5     0.35    0.35      1.00     1.00   -15.00
+5N9R   biased        new       5     0.35    0.35      1.00     1.00   -14.92
+
+zapisano /home/kgorzelanczyk/adbias/benchmark/versions/comparison_results/comparison_summary.csv
+
+kontrola metryki: |RDKit - obrms| mediana 0.000 A, max 0.000 A, n=120

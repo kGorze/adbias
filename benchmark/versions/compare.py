@@ -1,21 +1,12 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Porownanie wersji "legacy" (AutoDockTools) i "new" (Meeko/RDKit) na tych samych
-celach, warunkach i seedach.
+autodocktools a meeko na tych samych celach, warunkach i seedach.
+obrms a rdkit
 
-Sens: sprawdzic, czy zamiana toolchainu przygotowania zmienia WNIOSKI benchmarku
-(sukces/porazka redockingu, kierunek efektu bias vs conventional), a nie czy daje
-bit-w-bit te same liczby - to niemozliwe, bo inny receptor.pdbqt, inna protonacja
-liganda i inne pudelko daja inne mapy i inna trajektorie przeszukiwania.
-
-RMSD liczony jest w kazdej wersji jej wlasna metryka (legacy: obrms, new: RDKit),
-dodatkowo dla wersji "new" liczymy tez obrms - zeby pokazac, ze ewentualne roznice
-nie biora sie z samej metryki.
-
-Uruchamiac interpreterem z env "vs" (rdkit + meeko):
-    /home/kgorzelanczyk/miniforge3/envs/vs/bin/python compare.py
+do użycia z interpreterem z vs (rdkit + meeko):
+/home/kgorzelanczyk/miniforge3/envs/vs/bin/python compare.py
 """
+
 import os
 import csv
 import importlib.util
@@ -25,6 +16,7 @@ import tempfile
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+COMPARISON_RESULTS = os.path.join(HERE, "comparison_results")
 
 
 def load_config(name, path):
@@ -116,11 +108,12 @@ def agg(rows, version, pdbid, cond, thr):
 
 
 def main():
+    os.makedirs(COMPARISON_RESULTS, exist_ok=True)
     rows = []
     rows += collect(LEG, "legacy", rmsd_obrms)
     rows += collect(NEW, "new", rmsd_rdkit, extra_fn=rmsd_obrms)
 
-    path = os.path.join(HERE, "comparison_runs.csv")
+    path = os.path.join(COMPARISON_RESULTS, "comparison_runs.csv")
     cols = ["version", "pdbid", "condition", "seed", "top1_rmsd", "best_rmsd",
             "top1_score", "top1_rmsd_alt"]
     with open(path, "w", newline="") as f:
@@ -157,7 +150,7 @@ def main():
                 out.append(dict(pdbid=pdbid, condition=cond, version=version, **a))
         print()
 
-    path = os.path.join(HERE, "comparison_summary.csv")
+    path = os.path.join(COMPARISON_RESULTS, "comparison_summary.csv")
     with open(path, "w", newline="") as f:
         cols = ["pdbid", "condition", "version", "n", "top1_median", "best_median",
                 "top1_success", "best_success", "score_mean"]

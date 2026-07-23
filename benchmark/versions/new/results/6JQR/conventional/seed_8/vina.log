@@ -1,20 +1,26 @@
-maps        /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/receptor
-ligand      /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/ligand.pdbqt
-seed        8
-exhaustiveness 16
-num_modes   9
-energy_range 3
-cpu         8
-time_s      86.0
-
-mode |   affinity (kcal/mol)
------+---------------------
-   1 |     -9.930
-   2 |     -9.163
-   3 |     -9.109
-   4 |     -9.082
-   5 |     -8.938
-   6 |     -8.529
-   7 |     -8.368
-   8 |     -8.032
-   9 |     -7.998
+maps /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/receptor
+ligand /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/ligand.pdbqt
+seed 8
+exhaustiveness 32
+num_modes 20
+mode affinity (kcal/mol)
+   1     -9.838
+   2     -9.497
+   3     -9.384
+   4     -9.227
+   5     -9.156
+   6     -8.995
+   7     -8.991
+   8     -8.941
+   9     -8.881
+  10     -8.391
+  11     -8.090
+  12     -8.069
+  13     -8.023
+  14     -8.023
+  15     -8.003
+  16     -7.990
+  17     -7.745
+  18     -7.670
+  19     -7.532
+  20     -7.479

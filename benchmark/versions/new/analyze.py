@@ -1,40 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Ocena poz: symetryczny RMSD (RDKit) docked vs natywna poza krystaliczna.
-
-Roznica wobec wersji legacy: RMSD liczy RDKit (rdMolAlign.CalcRMS), a pozy z
-out.pdbqt odtwarza Meeko (RDKitMolCreate) razem z rzedami wiazan zapisanymi
-w "REMARK SMILES" - czyli graf czasteczki jest odtworzony, a nie zgadywany
-przez perception OpenBabela. CalcRMS uwzglednia symetrie czasteczki i NIE
-nasuwa czasteczek na siebie (redocking: obie sa w tym samym ukladzie wspolrzednych).
-
-Metryka pierwszorzedna: RMSD, prog sukcesu <= config.RMSD_SUCCESS, dla top-1 i best-of-N.
-Score Vina raportowany tylko diagnostycznie (nieporownywalny miedzy warunkami,
-bo bias sztucznie zmienia energie w jednym miejscu siatki).
-
-Wyniki:
-    results/results.csv    (per przebieg: cel, warunek, seed, RMSD top-1/best, score)
-    results/summary.csv    (per cel x warunek: success@2A, mediany RMSD, Wilcoxon)
-    results/plot.png       (success@2A i rozklad RMSD)
-"""
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from rdkit import Chem, RDLogger
+from rdkit import rdqueries
 from rdkit.Chem import rdMolAlign
 from meeko import PDBQTMolecule, RDKitMolCreate
 
 import config as C
 
+# żeby wszystko wyłączyć potzrebne jest rdApp, inaczej nie blokujemy komunikatów z C++
 RDLogger.DisableLog("rdApp.warning")
 
 
+def _topology_query(mol: Chem.Mol) -> Chem.Mol:
+    """
+    budujemy z mol wzorzecz do GetSubstructMatches, ktory dopasuje atomy tylko po liczbie atomowej
+    """
+    query = Chem.RWMol(mol)
+    for atom in query.GetAtoms():
+        query.ReplaceAtomWithQueryAtom(
+            atom.GetIdx(),
+            rdqueries.AtomNumEqualsQueryAtom(atom.GetAtomicNum())
+        )
+    return query
+
+#obecnie nieużywane bo jest źle zaprojektowane
 def _neutral_copy(mol):
-    """Kopia bez ladunkow formalnych - awaryjne dopasowanie grafu, gdy stany
-    protonacji pozy i referencji zapisane sa inaczej."""
+    """
+    kopia bez ladunkow formalnych,
+    """
     rw = Chem.RWMol(mol)
     for a in rw.GetAtoms():
         a.SetFormalCharge(0)
@@ -47,17 +46,33 @@ def _neutral_copy(mol):
 
 
 def _rmsd_by_matches(probe, conf_id, ref):
-    """Symetryczny RMSD po wszystkich dopasowaniach grafu (bez nasuwania)."""
-    matches = _neutral_copy(ref).GetSubstructMatches(_neutral_copy(probe),
-                                                     uniquify=False, maxMatches=100000)
+    """
+    Symetryczny RMSD po wszystkich dopasowaniach grafu
+    """
+    matches = ref.GetSubstructMatches(
+        _topology_query(probe),
+        uniquify=False,
+        maxMatches=100000
+    )
+
     if not matches:
         raise RuntimeError("poza nie pasuje grafem do natywnego liganda")
+
     p = probe.GetConformer(conf_id).GetPositions()
     r = ref.GetConformer().GetPositions()
-    return min(float(np.sqrt(((p - r[list(m)]) ** 2).sum(axis=1).mean())) for m in matches)
+
+    # usunięcie cold golfu, żeby to było poprawnie zrobione
+    rmsd_values = []
+    for match in matches:
+        matched_reference = r[list(match)]
+        squared_distances = ((p - matched_reference) ** 2).sum(axis=1)
+        rmsd = np.sqrt(squared_distances.mean())
+        rmsd_values.append(float(rmsd))
+
+    return min(rmsd_values)
 
 
-def rmsd_poses(native_sdf, out_pdbqt):
+def _rmsd_poses(native_sdf, out_pdbqt):
     """Symetryczny heavy-atom RMSD kazdej pozy vs natywna."""
     ref = Chem.RemoveAllHs(Chem.MolFromMolFile(native_sdf, removeHs=False))
     pmol = PDBQTMolecule.from_file(out_pdbqt, skip_typing=True)
@@ -73,49 +88,83 @@ def rmsd_poses(native_sdf, out_pdbqt):
     return vals
 
 
-def vina_scores(pdbqt):
-    """Lista affinity (kcal/mol) dla kolejnych poz z out.pdbqt."""
+def _vina_scores(pdbqt):
+    """
+    lista affinity (kcal/mol) dla kolejnych poz z out.pdbqt.
+    REMARK VINA RESULT:    -8.4      0.000      0.000
+    """
+
     scores = []
+
     with open(pdbqt) as f:
         for line in f:
-            if line.startswith("REMARK VINA RESULT:"):
-                scores.append(float(line.split(":")[1].split()[0]))
+            if not line.startswith("REMARK VINA RESULT:"):
+                continue
+
+            _, results_text = line.split("REMARK VINA RESULT:")
+            affinity_text, rmsd_lower, rmsd_upper = results_text.split()[:3]
+
+            affinity = float(affinity_text)
+            scores.append(affinity)
+
     return scores
 
 
-# --------------------------------------------------------------------------
-def collect():
+def _collect():
     rows = []
+    #przejście na pathlib zamiast os jest wygodniejsze i bardziej czytelne
+    results_directory = Path(C.RESULTS)
+
     for pdbid in C.TARGETS:
-        tdir = os.path.join(C.RESULTS, pdbid)
-        native = os.path.join(tdir, "native.sdf")
-        for cond in C.CONDITIONS:
+        target_directory = results_directory / pdbid
+        native_sdf_path = target_directory / "native.sdf"
+
+        for condition in C.CONDITIONS:
             for seed in C.SEEDS:
-                out_pdbqt = os.path.join(tdir, cond, "seed_%d" % seed, "out.pdbqt")
-                if not os.path.isfile(out_pdbqt):
+                output_pdbqt_path = (
+                    target_directory / condition / f"seed_{seed}" / "out.pdbqt"
+                )
+                if not output_pdbqt_path.is_file():
                     continue
-                rmsds = rmsd_poses(native, out_pdbqt)
-                scores = vina_scores(out_pdbqt)
-                if not rmsds:
+                rmsd_values = rmsd_poses(
+                    str(native_sdf_path), 
+                    str(output_pdbqt_path)
+                )
+                if not rmsd_values:
                     continue
-                top1, best = rmsds[0], min(rmsds)
-                rows.append(dict(
-                    pdbid=pdbid, condition=cond, seed=seed,
-                    top1_rmsd=round(top1, 3), best_rmsd=round(best, 3),
-                    best_pose=rmsds.index(best) + 1,
-                    top1_score=scores[0] if scores else "",
-                    top1_success=int(top1 <= C.RMSD_SUCCESS),
-                    best_success=int(best <= C.RMSD_SUCCESS),
-                ))
+                # robimy to tutaj a nie na końcu w tworzeniu słownika
+                score_values = vina_scores(str(output_pdbqt_path))
+                top1_rmsd = rmsd_values[0]
+                best_rmsd = min(rmsd_values)
+                best_pose_number = rmsd_values.index(best_rmsd) + 1
+
+                if score_values:
+                    top1_score = score_values[0]
+                else:
+                    top1_score = np.nan
+                row = {
+                    "pdbid": pdbid,
+                    "condition": condition,
+                    "seed": seed,
+                    "top1_rmsd": round(top1_rmsd, 3),
+                    "best_rmsd": round(best_rmsd, 3),
+                    "best_pose": best_pose_number,
+                    "top1_score": top1_score,
+                    "top1_success": top1_rmsd <= C.RMSD_SUCCESS,
+                    "best_success": best_rmsd <= C.RMSD_SUCCESS,
+                }
+                rows.append(row)
     return pd.DataFrame(rows)
 
 
-def write_runs(df):
-    path = os.path.join(C.RESULTS, "results.csv")
+#helper do zapisywania wyników
+def _write_runs(df):
+    results_directory = Path(C.RESULTS)
+    path = results_directory / "results.csv"
     df.to_csv(path, index=False)
-    print("zapisano " + path)
+    print("zapisano " + str(path))
 
-
+# 
 def summarize(df):
     try:
         from scipy.stats import wilcoxon
