@@ -11,3 +11,5 @@ echo "dock 2"
 "$PY" dock.py "$@"
 echo "analiza 3"
 "$PY" analyze.py
+echo "tcl 4"
+"$PY" tcl_script.py

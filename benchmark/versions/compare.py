@@ -12,7 +12,6 @@ import csv
 import importlib.util
 import subprocess
 import tempfile
-
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +29,6 @@ LEG = load_config("cfg_legacy", os.path.join(HERE, "legacy", "config.py"))
 NEW = load_config("cfg_new", os.path.join(HERE, "new", "config.py"))
 
 
-# --- metryki ---------------------------------------------------------------
 def vina_scores(pdbqt):
     out = []
     with open(pdbqt) as f:
@@ -66,7 +64,6 @@ def rmsd_rdkit(native_sdf, out_pdbqt):
     return rmsd_poses(native_sdf, out_pdbqt)
 
 
-# --- zbieranie -------------------------------------------------------------
 def collect(cfg, version, rmsd_fn, extra_fn=None):
     rows = []
     for pdbid in cfg.TARGETS:

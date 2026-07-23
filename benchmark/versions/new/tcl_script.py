@@ -1,3 +1,7 @@
+from pathlib import Path
+
+import config as C
+
 # funkcja: do tych 20 systemow z najlepszym results zrobienie automatycznie skryptu tcl z wczytaniem receptora i ligandow zadokowanych
 def generate_tcl_script(top_results, receptor_pdb, mol2_dir, output_tcl):
     lines = [f"mol new {receptor_pdb} type pdb"]
@@ -225,13 +229,13 @@ update_pose_contacts {} {} {}
 # każda pozycja ligandu ma być połączona z konkretnymi punktami. dla ligandu ma być połączenie z każdym aminokwasem, który może być w kontakcie z ligandem.
 # kontakt jest zdefiniowany jako odległość mniejsza niż X do zdefiniowania w funkcji przez parametr Å między atomami ligandu a najbliższym atomem aminokwasu.
 # dla kazdej klatki/pozycji ligandu ma być nowy obiekt w vmd, zeby mozna bylo sobie oglądać wszystkie w graphics jako nowa klatka a jednoczesnie dzilac z animacjami.
-def generate_tcl_with_contacts(ligand_id, receptor_pdb, mol2_dir, output_tcl, contact_distance=4.0):
-    mol2_path = f"{mol2_dir}/ligand_{ligand_id}_docked.mol2"
-
+# ligand_pdbqt to out.pdbqt z vina - wielomodelowy plik, VMD wczytuje go wprost jako "type pdb"
+# (kolumny sie pokrywaja z PDB), kazdy MODEL staje sie osobna klatka/poza, wiec konwersja do mol2 nie jest potrzebna.
+def generate_tcl_with_contacts(ligand_pdbqt, receptor_pdb, output_tcl, contact_distance=4.0, label="ligand"):
     # najpierw wczytujemy receptor potem ligand
     header = (
-        f'set lig [mol new "{mol2_path}" type mol2 waitfor all]\n'
-        f'mol rename $lig "ligand_{ligand_id}"\n'
+        f'set lig [mol new "{ligand_pdbqt}" type pdb waitfor all]\n'
+        f'mol rename $lig "{label}"\n'
         f"\n"
         f'set rec [mol new "{receptor_pdb}" type pdb waitfor all]\n'
         f'mol rename $rec "receptor"\n'
@@ -241,3 +245,42 @@ def generate_tcl_with_contacts(ligand_id, receptor_pdb, mol2_dir, output_tcl, co
 
     Path(output_tcl).write_text(header + _TCL_CONTACTS_BODY)
     return output_tcl
+
+
+# dla kazdego celu/warunku/seeda z C.RESULTS generuje contacts.tcl obok out.pdbqt
+# (receptor.prepared.pdb to receptor faktycznie uzyty do dokowania, wiec wspolrzedne
+# zgadzaja sie z pozami liganda).
+def generate_all(results_dir=None, contact_distance=4.0):
+    results_dir = Path(results_dir) if results_dir else Path(C.RESULTS)
+
+    for pdbid in C.TARGETS:
+        target_dir = results_dir / pdbid
+        receptor_pdb = target_dir / "receptor_prepared.pdb"
+        if not receptor_pdb.is_file():
+            print(f"pomijam {pdbid}: brak {receptor_pdb}")
+            continue
+
+        for condition in C.CONDITIONS:
+            for seed in C.SEEDS:
+                seed_dir = target_dir / condition / f"seed_{seed}"
+                out_pdbqt = seed_dir / "out.pdbqt"
+                if not out_pdbqt.is_file():
+                    continue
+
+                output_tcl = seed_dir / "contacts.tcl"
+                generate_tcl_with_contacts(
+                    str(out_pdbqt),
+                    str(receptor_pdb),
+                    str(output_tcl),
+                    contact_distance=contact_distance,
+                    label=f"{pdbid}_{condition}_seed{seed}",
+                )
+                print(f"  {pdbid}/{condition}/seed_{seed}: {output_tcl}")
+
+
+def main():
+    generate_all()
+
+
+if __name__ == "__main__":
+    main()

@@ -413,12 +413,78 @@ def plot(df, sdf):
     figure.savefig(output_path, dpi=130)
     plt.close(figure)
 
+# Osobna figura pokazuje energie top-1 jako udzial wynikow i histogram.
+def plot_docking_scores(df):
+    scores = df.dropna(subset=["top1_score"])
+    colors = {
+        "conventional": "#698BD1",
+        "biased": "#A1856AFF",
+    }
+    targets = list(C.TARGETS)
+    figure, axes = plt.subplots(
+        len(targets),
+        2,
+        figsize=(11, 4 * len(targets)),
+    )
+
+    for target_index, target in enumerate(targets):
+        target_scores = scores[scores["pdbid"] == target]
+        bins = np.linspace(
+            target_scores["top1_score"].min(),
+            target_scores["top1_score"].max(),
+            11,
+        )
+
+        for condition in C.CONDITIONS:
+            values = target_scores.loc[
+                target_scores["condition"] == condition,
+                "top1_score",
+            ]
+            counts, edges = np.histogram(values, bins=bins)
+            centers = (edges[:-1] + edges[1:]) / 2
+
+            axes[target_index, 0].plot(
+                centers,
+                100 * counts / counts.sum(),
+                "o-",
+                color=colors[condition],
+                label=condition,
+            )
+            axes[target_index, 1].hist(
+                values,
+                bins=bins,
+                alpha=0.65,
+                color=colors[condition],
+                label=condition,
+            )
+
+        axes[target_index, 0].set(
+            xlabel="energia dokowania (kcal/mol)",
+            ylabel="populacja (%)",
+            title=f"{target}: populacja względem energii",
+        )
+        axes[target_index, 1].set(
+            xlabel="energia dokowania (kcal/mol)",
+            ylabel="liczba wyników",
+            title=f"{target}: rozkład energii dokowania",
+        )
+        for axis in axes[target_index]:
+            axis.legend(frameon=False)
+
+    figure.tight_layout()
+    figure.savefig(
+        os.path.join(C.RESULTS, "docking_scores.png"),
+        dpi=130,
+    )
+    plt.close(figure)
+
 def main():
     # Główne kroki analizy są prywatnymi funkcjami tego modułu.
     df = _collect()
     _write_runs(df)
     sdf = _summarize(df)
     plot(df, sdf)
+    plot_docking_scores(df)
 
 if __name__ == "__main__":
     main()
