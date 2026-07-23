@@ -7,9 +7,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from rdkit import Chem, RDLogger
-from rdkit import rdqueries
+from rdkit.Chem import rdqueries
 from rdkit.Chem import rdMolAlign
 from meeko import PDBQTMolecule, RDKitMolCreate
+from scipy.stats import wilcoxon
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 
 import config as C
 
@@ -126,14 +132,15 @@ def _collect():
                 )
                 if not output_pdbqt_path.is_file():
                     continue
-                rmsd_values = rmsd_poses(
+                # Funkcje pomocnicze mają prefiks "_", bo są używane tylko w tym pliku.
+                rmsd_values = _rmsd_poses(
                     str(native_sdf_path), 
                     str(output_pdbqt_path)
                 )
                 if not rmsd_values:
                     continue
                 # robimy to tutaj a nie na końcu w tworzeniu słownika
-                score_values = vina_scores(str(output_pdbqt_path))
+                score_values = _vina_scores(str(output_pdbqt_path))
                 top1_rmsd = rmsd_values[0]
                 best_rmsd = min(rmsd_values)
                 best_pose_number = rmsd_values.index(best_rmsd) + 1
@@ -164,105 +171,268 @@ def _write_runs(df):
     df.to_csv(path, index=False)
     print("zapisano " + str(path))
 
-# 
-def summarize(df):
-    try:
-        from scipy.stats import wilcoxon
-    except Exception:
-        wilcoxon = None
+# Tworzymy jeden wiersz podsumowania dla każdego celu i warunku.
+def _summarize(df):
+    summary_rows = []
 
-    summary = []
     for pdbid in C.TARGETS:
-        # sparowany Wilcoxon: top-1 RMSD conventional vs biased (po seedach)
-        paired = {c: df[(df.pdbid == pdbid) & (df.condition == c)].set_index("seed")["top1_rmsd"]
-                  for c in C.CONDITIONS}
-        common = sorted(set(paired["conventional"].index) & set(paired["biased"].index))
-        p_val = ""
-        if wilcoxon and common:
-            a = paired["conventional"].loc[common].values
-            b = paired["biased"].loc[common].values
-            if np.any(a != b):
-                try:
-                    p_val = round(float(wilcoxon(a, b).pvalue), 4)
-                except Exception:
-                    p_val = ""
-        for cond in C.CONDITIONS:
-            g = df[(df.pdbid == pdbid) & (df.condition == cond)]
-            if g.empty:
+
+        #wywołanie testu wilcoxona dla pary warunków (conventional vs biased) dla danego celu
+        p_value = _calculate_paired_wilcoxon(df, pdbid)
+        if np.isnan(p_value):
+            print(f"blad testu Wilcoxona dla {pdbid}")
+
+        for condition in C.CONDITIONS:
+            group = df[
+                (df["pdbid"] == pdbid)
+                & (df["condition"] == condition)
+            ]
+
+            if group.empty:
                 continue
-            summary.append(dict(
-                pdbid=pdbid, condition=cond, n=len(g),
-                top1_success_rate=round(g.top1_success.mean(), 3),
-                best_success_rate=round(g.best_success.mean(), 3),
-                top1_rmsd_mean=round(g.top1_rmsd.mean(), 3),
-                top1_rmsd_median=round(g.top1_rmsd.median(), 3),
-                best_rmsd_median=round(g.best_rmsd.median(), 3),
-                wilcoxon_p_top1=p_val if cond == "biased" else "",
-            ))
-    sdf = pd.DataFrame(summary)
-    path = os.path.join(C.RESULTS, "summary.csv")
-    sdf.to_csv(path, index=False)
-    print("zapisano " + path)
-    return sdf
+
+            row = {
+                "pdbid": pdbid,
+                "condition": condition,
+                "n": len(group),
+                "top1_success_rate": round(
+                    group["top1_success"].mean(),
+                    3,
+                ),
+                "best_success_rate": round(
+                    group["best_success"].mean(),
+                    3,
+                ),
+                "top1_rmsd_mean": round(
+                    group["top1_rmsd"].mean(),
+                    3,
+                ),
+                "top1_rmsd_median": round(
+                    group["top1_rmsd"].median(),
+                    3,
+                ),
+                "best_rmsd_median": round(
+                    group["best_rmsd"].median(),
+                    3,
+                ),
+                "wilcoxon_p_top1": (
+                    round(p_value, 4)
+                    if condition == "biased"
+                    and not np.isnan(p_value)
+                    else np.nan
+                ),
+            }
+
+            summary_rows.append(row)
+    summary_dataframe = pd.DataFrame(summary_rows)
+    output_path = os.path.join(
+        C.RESULTS,
+        "summary.csv",
+    )
+    summary_dataframe.to_csv(
+        output_path,
+        index=False,
+    )
+    return summary_dataframe
 
 
+# Test porównuje tylko wyniki mające ten sam seed w obu warunkach.
+def _calculate_paired_wilcoxon(
+    df,
+    pdbid,
+    first_condition="conventional",
+    second_condition="biased",
+):
+    target_rows = df[df["pdbid"] == pdbid]
+
+    first_values = (
+        target_rows[
+            target_rows["condition"] == first_condition
+        ]
+        .set_index("seed")["top1_rmsd"]
+    )
+
+    second_values = (
+        target_rows[
+            target_rows["condition"] == second_condition
+        ]
+        .set_index("seed")["top1_rmsd"]
+    )
+
+    common_seeds = first_values.index.intersection(
+        second_values.index
+    )
+
+    if len(common_seeds) == 0:
+        return np.nan
+
+    first_paired = first_values.loc[common_seeds].to_numpy()
+    second_paired = second_values.loc[common_seeds].to_numpy()
+
+    differences = first_paired - second_paired
+
+    if np.all(differences == 0):
+        return np.nan
+
+    result = wilcoxon(first_paired, second_paired)
+    return float(result.pvalue)
+
+# Pobieramy wartości sukcesu potrzebne do narysowania jednej serii słupków.
+def _get_success_rates(summary_df, targets, condition):
+    success_rates = []
+
+    # Kolejność wartości musi odpowiadać kolejności słupków na osi X.
+    for target in targets:
+        matching_rows = summary_df[
+            (summary_df["pdbid"] == target)
+            & (summary_df["condition"] == condition)
+        ]
+        if matching_rows.empty:
+            success_rate = 0.0
+        else:
+            success_rate = float(matching_rows["top1_success_rate"].iloc[0])
+        success_rates.append(success_rate)
+    return success_rates
+
+
+# Wyliczamy pozycję warunku wewnątrz grupy danego celu.
+def get_condition_position(
+    target_index,
+    condition_index,
+    width,
+):
+    # Warunki są przesunięte na boki względem środka grupy celu.
+    return target_index + (condition_index - 0.5) * width
+
+
+# Lewy panel pokazuje odsetek udanych wyników dla każdego celu.
+def plot_success_rates(
+    axis,
+    summary_df,
+    targets,
+    colors,
+    bar_width,
+):
+    for condition_index, condition in enumerate(C.CONDITIONS):
+        success_rates = _get_success_rates(
+            summary_df,
+            targets,
+            condition,
+        )
+
+        positions = []
+
+        for target_index in range(len(targets)):
+            position = get_condition_position(
+                target_index,
+                condition_index,
+                bar_width,
+            )
+            positions.append(position)
+
+        axis.bar(
+            positions,
+            success_rates,
+            width=bar_width,
+            label=condition,
+            color=colors[condition],
+        )
+
+    axis.set_xticks(range(len(targets)))
+    axis.set_xticklabels(targets)
+    axis.set_ylabel(
+        f"success@{C.RMSD_SUCCESS:.1f} A (top-1)"
+    )
+    axis.set_ylim(0, 1.05)
+    axis.set_title("pozy (top-1)")
+    axis.legend(frameon=False)
+
+# Prawy panel pokazuje wszystkie wartości RMSD, bez ich agregowania.
+def plot_rmsd_distribution(
+    axis,
+    results_df,
+    targets,
+    colors,
+    point_offset,
+):
+    for condition_index, condition in enumerate(C.CONDITIONS):
+        for target_index, target in enumerate(targets):
+            matching_rows = results_df[
+                (results_df["pdbid"] == target)
+                & (results_df["condition"] == condition)
+            ]
+
+            rmsd_values = matching_rows["top1_rmsd"].to_numpy()
+
+            x_position = get_condition_position(
+                target_index,
+                condition_index,
+                point_offset,
+            )
+
+            axis.scatter(
+                [x_position] * len(rmsd_values),
+                rmsd_values,
+                s=18,
+                alpha=0.6,
+                color=colors[condition],
+                label=condition if target_index == 0 else None,
+            )
+
+    axis.axhline(
+        C.RMSD_SUCCESS,
+        linestyle="--",
+        linewidth=1,
+        color="gray",
+    )
+
+    axis.set_xticks(range(len(targets)))
+    axis.set_xticklabels(targets)
+    axis.set_ylabel("top-1 RMSD (A)")
+    axis.set_title("dystrybucja top-1 RMSD")
+    axis.legend(frameon=False)
+
+# Składamy oba panele i zapisujemy gotowy wykres do pliku.
 def plot(df, sdf):
-    try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-    except Exception:
-        print("matplotlib niedostepny - pomijam wykres")
-        return
     targets = list(C.TARGETS)
-    colors = {"conventional": "#5B8FF9", "biased": "#E8684A"}
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.5))
-
-    # lewy: success@2A (top-1) per cel x warunek
-    w = 0.38
-    for i, cond in enumerate(C.CONDITIONS):
-        vals = []
-        for t in targets:
-            s = sdf[(sdf.pdbid == t) & (sdf.condition == cond)]
-            vals.append(float(s.top1_success_rate.iloc[0]) if len(s) else 0.0)
-        x = [j + (i - 0.5) * w for j in range(len(targets))]
-        ax1.bar(x, vals, w, label=cond, color=colors[cond])
-    ax1.set_xticks(range(len(targets)))
-    ax1.set_xticklabels(targets)
-    ax1.set_ylabel("success@%.1f A (top-1)" % C.RMSD_SUCCESS)
-    ax1.set_ylim(0, 1.05)
-    ax1.legend(frameon=False)
-    ax1.set_title("Odzyskanie pozy (top-1)")
-
-    # prawy: rozklad top-1 RMSD (punkty) per cel x warunek
-    for i, cond in enumerate(C.CONDITIONS):
-        for j, t in enumerate(targets):
-            ys = df[(df.pdbid == t) & (df.condition == cond)].top1_rmsd.values
-            ax2.scatter([j + (i - 0.5) * w] * len(ys), ys, s=18, alpha=0.6,
-                        color=colors[cond], label=cond if j == 0 else None)
-    ax2.axhline(C.RMSD_SUCCESS, ls="--", lw=1, color="gray")
-    ax2.set_xticks(range(len(targets)))
-    ax2.set_xticklabels(targets)
-    ax2.set_ylabel("top-1 RMSD [A]")
-    ax2.legend(frameon=False)
-    ax2.set_title("Rozklad top-1 RMSD")
-
-    fig.tight_layout()
-    path = os.path.join(C.RESULTS, "plot.png")
-    fig.savefig(path, dpi=130)
-    print("zapisano " + path)
-
+    colors = {
+        "conventional": "#698BD1",
+        "biased": "#A1856AFF",
+    }
+    figure, axes = plt.subplots(
+        1,
+        2,
+        figsize=(11, 4.5),
+    )
+    point_offset = 0.38
+    plot_success_rates(
+        axis=axes[0],
+        summary_df=sdf,
+        targets=targets,
+        colors=colors,
+        bar_width=point_offset,
+    )
+    plot_rmsd_distribution(
+        axis=axes[1],
+        results_df=df,
+        targets=targets,
+        colors=colors,
+        point_offset=point_offset,
+    )
+    figure.tight_layout()
+    output_path = os.path.join(
+        C.RESULTS,
+        "plot.png",
+    )
+    figure.savefig(output_path, dpi=130)
+    plt.close(figure)
 
 def main():
-    df = collect()
-    if df.empty:
-        print("Brak wynikow - najpierw uruchom dock.py")
-        sys.exit(1)
-    write_runs(df)
-    sdf = summarize(df)
+    # Główne kroki analizy są prywatnymi funkcjami tego modułu.
+    df = _collect()
+    _write_runs(df)
+    sdf = _summarize(df)
     plot(df, sdf)
-    print("\nGotowe (analyze).")
-
 
 if __name__ == "__main__":
     main()
