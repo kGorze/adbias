@@ -1,0 +1,20 @@
+reszty usuniete przez mk_prepare_receptor (--allow_bad_res):
+  GLU494 (A)  min. odleglosc od liganda 20.1 A
+  GLU462 (B)  min. odleglosc od liganda 23.1 A
+  GLN498 (A)  min. odleglosc od liganda 25.2 A
+  GLU462 (A)  min. odleglosc od liganda 26.7 A
+  ARG386 (D)  min. odleglosc od liganda 34.0 A
+  LYS400 (D)  min. odleglosc od liganda 37.0 A
+  GLU308 (D)  min. odleglosc od liganda 47.2 A
+  GLU281 (D)  min. odleglosc od liganda 47.5 A
+  GLU453 (D)  min. odleglosc od liganda 50.9 A
+  GLU453 (C)  min. odleglosc od liganda 52.3 A
+  GLU450 (C)  min. odleglosc od liganda 55.8 A
+  ASN374 (D)  min. odleglosc od liganda 56.0 A
+  GLU409 (C)  min. odleglosc od liganda 58.1 A
+  LYS356 (D)  min. odleglosc od liganda 62.7 A
+
+w promieniu 5 A od natywnego liganda: 0
+
+--- log mk_prepare_receptor (ostrzezenia) ---
+- Template matching failed for: ['A:462', 'A:494', 'A:498', 'B:462', 'C:409', 'C:450', 'C:453', 'D:281', 'D:308', 'D:356', 'D:374', 'D:386', 'D:400', 'D:453'] Ignored due to allow_bad_res.

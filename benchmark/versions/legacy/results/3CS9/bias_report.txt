@@ -1,0 +1,1 @@
+ligand atom N (N)  <->  receptor THR315/OG1 (OA)   d=2.92 A   -> bias 'don'

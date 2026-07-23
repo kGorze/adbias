@@ -1,0 +1,7 @@
+
+Files written:
+     receptor_prepared.pdb <-- processed receptor PDB
+            receptor.pdbqt <-- static (i.e., rigid) receptor input file
+boron-silicon-atom_par.dat <-- atomic parameters for B and Si (for autogrid)
+              receptor.gpf <-- autogrid input file
+          receptor.box.pdb <-- PDB file to visualize the grid box

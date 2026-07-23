@@ -1,0 +1,9 @@
+protein: docking/receptor/6JQR_receptorFH.pdbqt
+exhaustiveness: 8
+seed: 0
+n_poses: 9
+ncpu: 32
+
+# x, y, z
+box_center: [-28.037, -10.362, -28.988]
+box_size: [20.0, 20.0, 20.0]

@@ -1,0 +1,384 @@
+
+       _______________________________________________________
+
+__________//____________________________/////_________________/________
+_________/__/____________/_____________/______________/_______/________
+________/____/___________/_____________/______________________/________
+________/____/__/_____/_/////___/////__/__////_/_///__/__////_/________
+_______/______/_/_____/__/_____/_____/_/_____/_//___/_/_/____//________
+_______////////_/_____/__/_____/_____/_/_____/_/______/_/_____/________
+_______/______/_/____//__/___/_/_____/_/_____/_/______/_/____//________
+_______/______/__////_/___///___/////___/////__/______/__////_/________
+
+       _______________________________________________________
+
+                                ______
+                               /      \
+                              /        \
+                             /          \
+                             \    /\    /
+                              \  /  \  /
+                               \/ /\ \/
+                                 /  \
+                                /____\
+
+
+                ______________________________________ 
+               |                                      |
+               |            AutoGrid 4.2.7.x          |
+               |                                      |
+               |        Garrett M. Morris, TSRI       |
+               |            Ruth Huey, TSRI           |
+               |        David S. Goodsell, TSRI       |
+               |         Arthur J. Olson, TSRI        |
+               |                                      |
+               |        (C) 1989-2020, TSRI           |
+               |   The Scripps Research Institute     |
+               |______________________________________|
+
+                ______________________________________ 
+               |                                      |
+               | Calculation of van der Waals, H-Bond,|
+               |   Electrostatic Potential Energy, &  |
+               |   Desolvation Free Energy Grid Maps  |
+               |             for AutoDock             |
+               | For help, email autodock@scripps.edu |
+               |______________________________________|
+
+
+
+
+                           $Revision: 1.160 $
+Compilation parameters:  NUM_RECEPTOR_TYPES=20 NEINT=1024
+  AG_MAX_ATOMS=100000  AG_MAX_NBONDS=4 MAX_MAPS=128 NDIEL=8192 MAX_ATOM_TYPES=126
+        e_vdW_Hb table allows    15876 entries of size 1024
+Maximum number of maps that can be computed = 128 (defined by MAX_MAPS in "autocomm.h").
+  Non-bond cutoff for internal energy calculation (SOFTNBC): 8.00
+  Optimize internal energy scoring (USE_8A_NBCUTOFF):  yes
+  Faster search for nearby atoms (USE_BHTREE):  no
+  Run calculations in parallel if possible (_OPENMP):  yes
+  Maximum number of parallel threads (MAXTHREADS): 32
+This file was created at:			3:06 47" p.m., 07/22/2026
+                   using:			"unknown_host"
+
+
+GPF> parameter_file boron-silicon-atom_par.dat
+Using read_parameter_library() to try to open and read "boron-silicon-atom_par.dat".
+
+GPF> npts 90 72 68
+
+Number of grid points in x-direction:	91
+Number of grid points in y-direction:	73
+Number of grid points in z-direction:	69
+
+GPF> gridfld receptor.maps.fld
+
+Creating (AVS-readable) grid maps file : receptor.maps.fld
+
+Creating (AVS-readable) grid-coordinates extrema file : receptor.maps.xyz
+
+GPF> spacing 0.375
+Grid Spacing :			0.375 Angstrom
+
+GPF> receptor_types HD C A N NA OA F P SA S Cl Br I Mg Ca Mn Fe Zn
+GPF> ligand_types HD C A N NA OA F P SA S Cl Br I Si B
+0 'HD' ->'HD' vdW/Hb/cov
+1 'C' ->'C' vdW/Hb/cov
+2 'A' ->'A' vdW/Hb/cov
+3 'N' ->'N' vdW/Hb/cov
+4 'NA' ->'NA' vdW/Hb/cov
+5 'OA' ->'OA' vdW/Hb/cov
+6 'F' ->'F' vdW/Hb/cov
+7 'P' ->'P' vdW/Hb/cov
+8 'SA' ->'SA' vdW/Hb/cov
+9 'S' ->'S' vdW/Hb/cov
+10 'Cl' ->'Cl' vdW/Hb/cov
+11 'Br' ->'Br' vdW/Hb/cov
+12 'I' ->'I' vdW/Hb/cov
+13 'Si' ->'Si' vdW/Hb/cov
+14 'B' ->'B' vdW/Hb/cov
+Allocated space for 17 gridmap objects
+32 CPU threads will be used for calculation
+
+Atom type names for ligand atom types 1-15 used for ligand-atom affinity grid maps:
+
+			Atom type number 1 corresponds to atom type name "HD".
+			Atom type number 2 corresponds to atom type name "C".
+			Atom type number 3 corresponds to atom type name "A".
+			Atom type number 4 corresponds to atom type name "N".
+			Atom type number 5 corresponds to atom type name "NA".
+			Atom type number 6 corresponds to atom type name "OA".
+			Atom type number 7 corresponds to atom type name "F".
+			Atom type number 8 corresponds to atom type name "P".
+			Atom type number 9 corresponds to atom type name "SA".
+			Atom type number 10 corresponds to atom type name "S".
+			Atom type number 11 corresponds to atom type name "Cl".
+			Atom type number 12 corresponds to atom type name "Br".
+			Atom type number 13 corresponds to atom type name "I".
+			Atom type number 14 corresponds to atom type name "Si".
+			Atom type number 15 corresponds to atom type name "B".
+
+
+GPF> receptor receptor.pdbqt
+
+Receptor Input File :	receptor.pdbqt
+
+Receptor Atom Type Assignments:
+
+
+Maximum partial atomic charge found = +0.345 e
+Minimum partial atomic charge found = -0.549 e
+
+Atom	Atom	Number of this Type
+Type	 ID 	 in Receptor
+____	____	___________________
+ 0	 HD		  1722
+ 1	 C		  4401
+ 2	 A		   890
+ 3	 N		  1309
+ 4	 NA		    22
+ 5	 OA		  1501
+ 8	 SA		    64
+
+Total number of atoms :		9909 atoms 
+Total charge :			-32.00 e
+
+
+Receptor coordinates fit within the following volume:
+
+                   _______(58.0, 83.3, 120.1)
+                  /|     /|
+                 / |    / |
+                /______/  |
+                |  |___|__| Midpoint = (21.5, 31.2, 52.9)
+                |  /   |  /
+                | /    | /
+                |/_____|/
+(-15.1, -20.8, -14.3)      
+
+Maximum coordinates :		(58.010, 83.267, 120.132)
+Minimum coordinates :		(-15.081, -20.769, -14.330)
+
+
+GPF> gridcenter 29.025 2.847 52.761
+
+Grid maps will be centered on user-defined coordinates:
+
+		(29.025, 2.847, 52.761)
+
+Grid maps will cover the following volume:
+
+                   _______(45.9, 16.3, 65.5)
+                  /|     /|
+                 / |    / |
+                /______/  |
+                |  |___|__| Midpoint = (29.0, 2.8, 52.8)
+                |  /   |  /
+                | /    | /
+                |/_____|/
+(12.1, -10.7, 40.0)      
+
+Grid map x-dimension :		33.8 Angstroms
+Grid map y-dimension :		27.0 Angstroms
+Grid map z-dimension :		25.5 Angstroms
+
+Maximum coordinates :		(45.900, 16.347, 65.511)
+Minimum coordinates :		(12.150, -10.653, 40.011)
+
+GPF> smooth 0.500
+
+Potentials will be smoothed by: 0.500 Angstrom
+
+GPF> map receptor.HD.map
+
+Output Grid Map 1:   receptor.HD.map
+
+GPF> map receptor.C.map
+
+Output Grid Map 2:   receptor.C.map
+
+GPF> map receptor.A.map
+
+Output Grid Map 3:   receptor.A.map
+
+GPF> map receptor.N.map
+
+Output Grid Map 4:   receptor.N.map
+
+GPF> map receptor.NA.map
+
+Output Grid Map 5:   receptor.NA.map
+
+GPF> map receptor.OA.map
+
+Output Grid Map 6:   receptor.OA.map
+
+GPF> map receptor.F.map
+
+Output Grid Map 7:   receptor.F.map
+
+GPF> map receptor.P.map
+
+Output Grid Map 8:   receptor.P.map
+
+GPF> map receptor.SA.map
+
+Output Grid Map 9:   receptor.SA.map
+
+GPF> map receptor.S.map
+
+Output Grid Map 10:   receptor.S.map
+
+GPF> map receptor.Cl.map
+
+Output Grid Map 11:   receptor.Cl.map
+
+GPF> map receptor.Br.map
+
+Output Grid Map 12:   receptor.Br.map
+
+GPF> map receptor.I.map
+
+Output Grid Map 13:   receptor.I.map
+
+GPF> map receptor.Si.map
+
+Output Grid Map 14:   receptor.Si.map
+
+GPF> map receptor.B.map
+
+Output Grid Map 15:   receptor.B.map
+
+GPF> elecmap receptor.e.map
+
+Output Electrostatic Potential Energy Grid Map: receptor.e.map
+
+GPF> dsolvmap receptor.d.map
+
+Output Desolvation Free Energy Grid Map: receptor.d.map
+
+GPF> dielectric -42.000
+
+Using *distance-dependent* dielectric function of Mehler and Solmajer, Prot.Eng.4, 903-910.
+
+
+>>> Closing the grid parameter file (GPF)... <<<
+
+________________________________________________________________________________
+
+
+
+No Floating Grid was requested.
+
+
+No Constriction Grid was requested.
+
+
+Calculating Pairwise Interaction Energies
+Beginning grid calculations.
+
+Calculating 17 grids over 458367 elements, around 9909 receptor atoms.
+
+                    Percent   Estimated Time  Time/this plane
+XY-plane  Z-coord   Done      Remaining       Real, User, System
+            /Ang              /sec            /sec
+________  ________  ________  ______________  __________________________
+
+    -34     40.011     1.4%        1m 01.20s  Real= 0.90,  CPU= 16.08,  System= 0.01
+    -33     40.386     2.9%        1m 00.30s  Real= 0.90,  CPU= 16.12,  System= 0.01
+    -32     40.761     4.3%           59.40s  Real= 0.90,  CPU= 16.12,  System= 0.01
+    -31     41.136     5.8%           58.50s  Real= 0.90,  CPU= 16.14,  System= 0.01
+    -30     41.511     7.2%           57.60s  Real= 0.90,  CPU= 16.17,  System= 0.01
+    -29     41.886     8.7%           56.70s  Real= 0.90,  CPU= 16.17,  System= 0.01
+    -28     42.261    10.1%           55.80s  Real= 0.90,  CPU= 16.21,  System= 0.01
+    -27     42.636    11.6%           55.51s  Real= 0.91,  CPU= 16.37,  System= 0.01
+    -26     43.011    13.0%        1m 46.80s  Real= 1.78,  CPU= 32.00,  System= 0.02
+    -25     43.386    14.5%        1m 45.02s  Real= 1.78,  CPU= 32.00,  System= 0.02
+    -24     43.761    15.9%        1m 43.82s  Real= 1.79,  CPU= 32.09,  System= 0.02
+    -23     44.136    17.4%        1m 42.03s  Real= 1.79,  CPU= 32.09,  System= 0.02
+    -22     44.511    18.8%        1m 40.24s  Real= 1.79,  CPU= 32.10,  System= 0.02
+    -21     44.886    20.3%        1m 38.45s  Real= 1.79,  CPU= 32.21,  System= 0.02
+    -20     45.261    21.7%           48.60s  Real= 0.90,  CPU= 16.14,  System= 0.01
+    -19     45.636    23.2%        1m 35.40s  Real= 1.80,  CPU= 32.22,  System= 0.02
+    -18     46.011    24.6%        1m 33.60s  Real= 1.80,  CPU= 32.24,  System= 0.02
+    -17     46.386    26.1%        1m 31.80s  Real= 1.80,  CPU= 32.24,  System= 0.02
+    -16     46.761    27.5%           45.00s  Real= 0.90,  CPU= 16.15,  System= 0.01
+    -15     47.136    29.0%           44.10s  Real= 0.90,  CPU= 16.17,  System= 0.01
+    -14     47.511    30.4%           43.20s  Real= 0.90,  CPU= 16.08,  System= 0.01
+    -13     47.886    31.9%           42.30s  Real= 0.90,  CPU= 16.19,  System= 0.01
+    -12     48.261    33.3%        1m 22.80s  Real= 1.80,  CPU= 32.34,  System= 0.02
+    -11     48.636    34.8%           40.95s  Real= 0.91,  CPU= 16.24,  System= 0.01
+    -10     49.011    36.2%           40.04s  Real= 0.91,  CPU= 16.26,  System= 0.01
+     -9     49.386    37.7%           38.70s  Real= 0.90,  CPU= 16.07,  System= 0.01
+     -8     49.761    39.1%           37.38s  Real= 0.89,  CPU= 15.19,  System= 0.01
+     -7     50.136    40.6%           36.49s  Real= 0.89,  CPU= 15.16,  System= 0.01
+     -6     50.511    42.0%           35.60s  Real= 0.89,  CPU= 15.19,  System= 0.01
+     -5     50.886    43.5%           34.71s  Real= 0.89,  CPU= 15.23,  System= 0.01
+     -4     51.261    44.9%           34.20s  Real= 0.90,  CPU= 15.24,  System= 0.01
+     -3     51.636    46.4%           32.93s  Real= 0.89,  CPU= 15.14,  System= 0.01
+     -2     52.011    47.8%           32.40s  Real= 0.90,  CPU= 15.29,  System= 0.01
+     -1     52.386    49.3%           31.50s  Real= 0.90,  CPU= 15.31,  System= 0.01
+      0     52.761    50.7%        1m 00.86s  Real= 1.79,  CPU= 30.33,  System= 0.01
+      1     53.136    52.2%           58.74s  Real= 1.78,  CPU= 30.25,  System= 0.01
+      2     53.511    53.6%           56.96s  Real= 1.78,  CPU= 30.28,  System= 0.01
+      3     53.886    55.1%           55.18s  Real= 1.78,  CPU= 30.31,  System= 0.01
+      4     54.261    56.5%           26.70s  Real= 0.89,  CPU= 15.14,  System= 0.00
+      5     54.636    58.0%           25.81s  Real= 0.89,  CPU= 15.20,  System= 0.00
+      6     55.011    59.4%           50.12s  Real= 1.79,  CPU= 30.40,  System= 0.01
+      7     55.386    60.9%           48.06s  Real= 1.78,  CPU= 30.37,  System= 0.01
+      8     55.761    62.3%           46.54s  Real= 1.79,  CPU= 30.43,  System= 0.01
+      9     56.136    63.8%           22.50s  Real= 0.90,  CPU= 15.20,  System= 0.00
+     10     56.511    65.2%           42.96s  Real= 1.79,  CPU= 30.49,  System= 0.01
+     11     56.886    66.7%           20.70s  Real= 0.90,  CPU= 15.21,  System= 0.00
+     12     57.261    68.1%           19.58s  Real= 0.89,  CPU= 15.16,  System= 0.00
+     13     57.636    69.6%           37.59s  Real= 1.79,  CPU= 30.40,  System= 0.01
+     14     58.011    71.0%           17.80s  Real= 0.89,  CPU= 15.19,  System= 0.00
+     15     58.386    72.5%           17.10s  Real= 0.90,  CPU= 15.18,  System= 0.00
+     16     58.761    73.9%           16.20s  Real= 0.90,  CPU= 15.18,  System= 0.00
+     17     59.136    75.4%           14.79s  Real= 0.87,  CPU= 7.86,  System= 0.00
+     18     59.511    76.8%           14.08s  Real= 0.88,  CPU= 8.17,  System= 0.00
+     19     59.886    78.3%           13.05s  Real= 0.87,  CPU= 7.86,  System= 0.00
+     20     60.261    79.7%           12.32s  Real= 0.88,  CPU= 7.91,  System= 0.00
+     21     60.636    81.2%           11.70s  Real= 0.90,  CPU= 8.28,  System= 0.00
+     22     61.011    82.6%           10.68s  Real= 0.89,  CPU= 8.08,  System= 0.00
+     23     61.386    84.1%            9.79s  Real= 0.89,  CPU= 8.05,  System= 0.00
+     24     61.761    85.5%            9.30s  Real= 0.93,  CPU= 8.54,  System= 0.00
+     25     62.136    87.0%            7.65s  Real= 0.85,  CPU= 7.66,  System= 0.01
+     26     62.511    88.4%            6.80s  Real= 0.85,  CPU= 7.65,  System= 0.01
+     27     62.886    89.9%           12.18s  Real= 1.74,  CPU= 15.80,  System= 0.01
+     28     63.261    91.3%            5.16s  Real= 0.86,  CPU= 7.64,  System= 0.01
+     29     63.636    92.8%            4.25s  Real= 0.85,  CPU= 7.63,  System= 0.01
+     30     64.011    94.2%            3.40s  Real= 0.85,  CPU= 7.63,  System= 0.01
+     31     64.386    95.7%            2.58s  Real= 0.86,  CPU= 7.61,  System= 0.01
+     32     64.761    97.1%            1.70s  Real= 0.85,  CPU= 7.58,  System= 0.01
+     33     65.136    98.6%            0.86s  Real= 0.86,  CPU= 7.41,  System= 0.01
+     34     65.511   100.0%            0.00s  Real= 0.83,  CPU= 0.97,  System= 0.00
+
+Grid	Atom	Minimum   	Maximum
+Map 	Type	Energy    	Energy 
+		(kcal/mol)	(kcal/mol)
+____	____	_____________	_____________
+ 1	 HD	   -0.72	 1.10e+05
+ 2	 C	   -1.04	 2.02e+05
+ 3	 A	   -0.93	 2.02e+05
+ 4	 N	   -1.05	 2.00e+05
+ 5	 NA	   -1.47	 2.00e+05
+ 6	 OA	   -1.99	 2.00e+05
+ 7	 F	   -0.67	 2.00e+05
+ 8	 P	   -1.19	 2.05e+05
+ 9	 SA	   -1.36	 2.02e+05
+ 10	 S	   -1.28	 2.02e+05
+ 11	 Cl	   -1.37	 2.05e+05
+ 12	 Br	   -1.69	 2.11e+05
+ 13	 I	   -2.05	 2.45e+05
+ 14	 Si	   -1.22	 2.04e+05
+ 15	 B	   -1.04	 2.01e+05
+ 16	 e	  -34.46	 1.89e+01	Electrostatic Potential
+ 17	 d	    0.00	 1.53e+00	Desolvation Potential
+
+
+ * Note:  Every pairwise-atomic interaction was clamped at 100000.00
+
+
+/home/kgorzelanczyk/miniforge3/envs/adbias/bin/autogrid4: Successful Completion.
+Real= 6.42s,  CPU= 1m 22.52s,  System= 0.07s

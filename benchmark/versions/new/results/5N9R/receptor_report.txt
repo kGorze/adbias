@@ -1,0 +1,6 @@
+reszty usuniete przez mk_prepare_receptor (--allow_bad_res):
+  brak - wszystkie reszty dopasowane do szablonow
+
+w promieniu 5 A od natywnego liganda: 0
+
+--- log mk_prepare_receptor (ostrzezenia) ---

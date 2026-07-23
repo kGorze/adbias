@@ -1,0 +1,20 @@
+maps        /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/maps_biased/receptor
+ligand      /home/kgorzelanczyk/adbias/benchmark/versions/new/results/6JQR/ligand.pdbqt
+seed        9
+exhaustiveness 16
+num_modes   9
+energy_range 3
+cpu         8
+time_s      67.1
+
+mode |   affinity (kcal/mol)
+-----+---------------------
+   1 |    -10.048
+   2 |     -9.948
+   3 |     -9.871
+   4 |     -9.732
+   5 |     -9.652
+   6 |     -9.453
+   7 |     -9.135
+   8 |     -9.047
+   9 |     -8.967

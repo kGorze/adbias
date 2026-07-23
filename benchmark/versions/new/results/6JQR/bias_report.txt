@@ -1,0 +1,1 @@
+ligand atom O (OA)  <->  receptor CYS694/N (N)   d=2.80 A   -> bias 'acc'

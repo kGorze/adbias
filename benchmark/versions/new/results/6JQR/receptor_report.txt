@@ -1,0 +1,29 @@
+reszty usuniete przez mk_prepare_receptor (--allow_bad_res):
+  LYS623 (A)  min. odleglosc od liganda 6.8 A
+  LYS614 (A)  min. odleglosc od liganda 7.1 A
+  ASN781 (A)  min. odleglosc od liganda 8.4 A
+  LYS709 (A)  min. odleglosc od liganda 9.3 A
+  SER838 (A)  min. odleglosc od liganda 10.2 A
+  PHE621 (A)  min. odleglosc od liganda 11.6 A
+  GLU708 (A)  min. odleglosc od liganda 11.6 A
+  MET837 (A)  min. odleglosc od liganda 11.8 A
+  LYS823 (A)  min. odleglosc od liganda 12.4 A
+  GLU611 (A)  min. odleglosc od liganda 13.1 A
+  LYS647 (A)  min. odleglosc od liganda 13.2 A
+  ARG655 (A)  min. odleglosc od liganda 15.2 A
+  ARG571 (A)  min. odleglosc od liganda 15.6 A
+  GLU648 (A)  min. odleglosc od liganda 16.2 A
+  LYS797 (A)  min. odleglosc od liganda 16.7 A
+  SER653 (A)  min. odleglosc od liganda 17.3 A
+  ASN847 (A)  min. odleglosc od liganda 17.9 A
+  ASP651 (A)  min. odleglosc od liganda 18.5 A
+  GLU608 (A)  min. odleglosc od liganda 18.7 A
+  SER652 (A)  min. odleglosc od liganda 19.5 A
+  ILE921 (A)  min. odleglosc od liganda 24.7 A
+  PHE942 (A)  min. odleglosc od liganda 27.0 A
+  GLU916 (A)  min. odleglosc od liganda 28.9 A
+
+w promieniu 5 A od natywnego liganda: 0
+
+--- log mk_prepare_receptor (ostrzezenia) ---
+- Template matching failed for: ['A:571', 'A:608', 'A:611', 'A:614', 'A:621', 'A:623', 'A:647', 'A:648', 'A:651', 'A:652', 'A:653', 'A:655', 'A:708', 'A:709', 'A:781', 'A:797', 'A:823', 'A:837', 'A:838', 'A:847', 'A:916', 'A:921', 'A:942'] Ignored due to allow_bad_res.

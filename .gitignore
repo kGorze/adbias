@@ -1,1 +1,5 @@
 PRZEJSCIE.md
+benchmark/versions/legacy/__pycache__/
+benchmark/versions/legacy/tools/
+benchmark/versions/new/tools/
+benchmark/versions/new/__pycache__/

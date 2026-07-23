@@ -1,0 +1,15 @@
+pdbid,condition,seed,top1_rmsd,best_rmsd,best_pose,top1_score,top1_success,best_success
+6JQR,conventional,1,9.774,9.774,1,-10.435,0,0
+6JQR,conventional,2,11.966,5.009,9,-9.901,0,0
+6JQR,conventional,3,9.273,4.703,8,-11.44,0,0
+3CS9,conventional,1,0.303,0.303,1,-14.402,1,1
+3CS9,conventional,2,0.313,0.313,1,-14.413,1,1
+3CS9,conventional,3,0.311,0.311,1,-14.419,1,1
+5N9R,conventional,1,0.377,0.377,1,-13.445,1,1
+5N9R,conventional,2,0.371,0.371,1,-13.436,1,1
+5N9R,conventional,3,0.344,0.344,1,-13.467,1,1
+5N9R,conventional,4,0.346,0.346,1,-13.479,1,1
+5N9R,conventional,5,0.368,0.368,1,-13.424,1,1
+5N9R,conventional,6,0.358,0.358,1,-13.463,1,1
+5N9R,conventional,7,0.357,0.357,1,-13.45,1,1
+5N9R,conventional,8,0.339,0.339,1,-13.488,1,1

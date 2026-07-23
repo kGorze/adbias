@@ -1,0 +1,1 @@
+ligand atom O (OA)  <->  receptor TYR465/OH (OA)   d=2.47 A   -> bias 'acc'

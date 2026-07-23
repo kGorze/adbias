@@ -1,0 +1,1 @@
+tutaj jest taki problem, ze sole, przeciwjony i inne odłączone fragmenty są usuwane w funkcji strip_salts() 
