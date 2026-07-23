@@ -15,6 +15,10 @@ AUTOGRID4 = "/home/kgorzelanczyk/miniforge3/envs/adbias/bin/autogrid4"
 PREPARE_BIAS = os.path.join(HERE, "..", "legacy", "tools", "prepare_bias.py")
 PREPARE_BIAS = os.path.abspath(PREPARE_BIAS)
 
+# ideal_interaction_sites.py tez jest Python2 (Bio.PDB + numpy), uzywa tego samego PY2 co prepare_bias.py
+IDEAL_INTERACTION_SITES = os.path.join(HERE, "..", "..", "..", "adbias", "code", "ideal_interaction_sites.py")
+IDEAL_INTERACTION_SITES = os.path.abspath(IDEAL_INTERACTION_SITES)
+
 DATA    = "/home/kgorzelanczyk/adbias/benchmark/bialka"
 RESULTS = os.path.join(HERE, "results")
 

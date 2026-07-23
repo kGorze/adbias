@@ -381,6 +381,8 @@ class Cubes(object):
 
 		# no. of points in half the side of the cube
 		# (twice the size of the bias site to allow smooth energy modifications through space)
+
+		#KONRAD: Program w ogóle nie liczy energii poza sześcianem o połowie boku ~~2·r
 		points_from_center = mt.ceil(2 * bs['radius'] / grid['spacing'])
 
         # no. of points in the side of the cube
@@ -596,6 +598,7 @@ class Insert_Bias(object):
 				ny = cube['points_cubeMin_gridMin']['y']
 				nz += 1
 
+			#KONRAD: wzór na odległość
 			# distance from center of bias site
 			distance = ( (x - cube['bias_site_center']['x'])**2 + (y - cube['bias_site_center']['y'])**2 + (z - cube['bias_site_center']['z'])**2 ) ** (1/2)
 			
@@ -607,11 +610,13 @@ class Insert_Bias(object):
 			
 			# if the energy input for the bias site was DG (negative number)
 			elif 'DG' in cube:
-				
+
+				#KONRAD: następna linia odnośnie wzoru na odległość
 				# define energy reward (gaussian function for distance from bias site center)
 				dE = cube['DG'] * mt.exp(-1 * (distance ** 2) / (cube['radius'] ** 2))	
 
 			# if the energy reward is stronger than 0.01 kcal/mol
+			#KONRAD: prób numeryczny zapisu jest ignorowane, realny punkt obcięcia
 			if dE < -0.01:
 				
 				# get line from map file to change the energy in that point (parse only inside the cube)
