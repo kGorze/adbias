@@ -1,0 +1,142 @@
+from os import PathLike
+from pathlib import Path
+from typing import Sequence
+
+from .geometry import calculate_bias_geometry
+from .models import AutoDockGrid, Bias, Draw, GeneratedVisualization
+from .parsing import parse_autodock_mapfile, parse_bias_file
+from .scene import build_bias_scene
+from .vmd import render_tcl
+
+
+def generate_bias_visualization(
+    mapfile_path: str | PathLike[str],
+    bias: Bias,
+    receptor_pdb: str | PathLike[str],
+    output_tcl: str | PathLike[str],
+    renderer_tcl: str | PathLike[str],
+    scene_name: str,
+    epsilon: float = 0.01,
+    draw: Draw | None = None,
+) -> Path:
+    spacing, nelements, center = parse_autodock_mapfile(mapfile_path)
+    grid = AutoDockGrid(spacing, nelements, center)
+    geometry = calculate_bias_geometry(grid, bias, epsilon)
+    draw_settings = draw if draw is not None else Draw()
+    scene = build_bias_scene(geometry, mapfile_path, draw_settings)
+    tcl_script = render_tcl(
+        scene=scene,
+        receptor_pdb=receptor_pdb,
+        renderer_tcl=renderer_tcl,
+        scene_name=scene_name,
+        graphics_opacity=draw_settings.graphics_opacity,
+    )
+
+    output_path = Path(output_tcl)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(tcl_script, encoding="utf-8")
+    return output_path
+
+
+def _safe_filename_token(value: str) -> str:
+    token = "".join(
+        character if character.isalnum() or character in {"-", "_"} else "_"
+        for character in value
+    )
+    if not token:
+        raise ValueError("bias type does not contain filename-safe characters")
+    return token
+
+
+def generate_for_system(
+    system_dir: str | PathLike[str],
+    renderer_tcl: str | PathLike[str],
+    epsilon: float = 0.01,
+    draw: Draw | None = None,
+    output_directory_name: str = "bias_visualizations",
+    map_filename: str = "receptor.A.map",
+    bias_filename: str = "bias.bpf",
+    receptor_filename: str = "receptor_prepared.pdb",
+) -> tuple[GeneratedVisualization, ...]:
+    directory = Path(system_dir)
+    if not directory.is_dir():
+        raise FileNotFoundError(f"system directory does not exist: {directory}")
+
+    mapfile_path = directory / map_filename
+    bias_file_path = directory / bias_filename
+    receptor_path = directory / receptor_filename
+    for required_path in (mapfile_path, bias_file_path, receptor_path):
+        if not required_path.is_file():
+            raise FileNotFoundError(f"required system file does not exist: {required_path}")
+
+    biases = parse_bias_file(bias_file_path)
+    output_directory = directory / output_directory_name
+    generated: list[GeneratedVisualization] = []
+    for bias_number, bias in enumerate(biases, start=1):
+        bias_type = _safe_filename_token(bias.bias_type)
+        output_tcl = output_directory / f"bias_{bias_number:03d}_{bias_type}.tcl"
+        scene_name = f"{directory.name}_bias_{bias_number:03d}_{bias_type}"
+        generate_bias_visualization(
+            mapfile_path=mapfile_path,
+            bias=bias,
+            receptor_pdb=receptor_path,
+            output_tcl=output_tcl,
+            renderer_tcl=renderer_tcl,
+            scene_name=scene_name,
+            epsilon=epsilon,
+            draw=draw,
+        )
+        generated.append(
+            GeneratedVisualization(
+                system=directory.name,
+                bias_number=bias_number,
+                bias_type=bias.bias_type,
+                output_tcl=output_tcl,
+            )
+        )
+    return tuple(generated)
+
+
+def generate_for_all_systems(
+    results_directory: str | PathLike[str],
+    renderer_tcl: str | PathLike[str],
+    systems: Sequence[str] | None = None,
+    epsilon: float = 0.01,
+    draw: Draw | None = None,
+    output_directory_name: str = "bias_visualizations",
+    map_filename: str = "receptor.A.map",
+    bias_filename: str = "bias.bpf",
+    receptor_filename: str = "receptor_prepared.pdb",
+) -> tuple[GeneratedVisualization, ...]:
+    results_path = Path(results_directory)
+    if not results_path.is_dir():
+        raise FileNotFoundError(f"results directory does not exist: {results_path}")
+
+    if systems is None:
+        system_names = tuple(
+            directory.name
+            for directory in sorted(results_path.iterdir())
+            if directory.is_dir() and (directory / bias_filename).is_file()
+        )
+        if not system_names:
+            raise ValueError(f"no system directories with {bias_filename} in {results_path}")
+    else:
+        system_names = tuple(systems)
+        if not system_names:
+            raise ValueError("systems cannot be empty")
+
+    generated: list[GeneratedVisualization] = []
+    for system_name in system_names:
+        generated.extend(
+            generate_for_system(
+                system_dir=results_path / system_name,
+                renderer_tcl=renderer_tcl,
+                epsilon=epsilon,
+                draw=draw,
+                output_directory_name=output_directory_name,
+                map_filename=map_filename,
+                bias_filename=bias_filename,
+                receptor_filename=receptor_filename,
+            )
+        )
+    return tuple(generated)
