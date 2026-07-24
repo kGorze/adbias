@@ -12,16 +12,12 @@ def _add_drawing_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--accepted-point-radius", type=float, default=0.045)
     parser.add_argument("--draw-rejected-points", action="store_true")
     parser.add_argument("--no-candidate-points", action="store_true")
-    parser.add_argument("--no-current-cube", action="store_true")
-    parser.add_argument("--no-corrected-box", action="store_true")
 
 
 def _draw_options_from_arguments(arguments: argparse.Namespace) -> DrawOptions:
     return DrawOptions(
         draw_candidate_points=not arguments.no_candidate_points,
         draw_rejected_points=arguments.draw_rejected_points,
-        draw_current_cube=not arguments.no_current_cube,
-        draw_corrected_box=not arguments.no_corrected_box,
         accepted_point_radius=arguments.accepted_point_radius,
         graphics_opacity=arguments.opacity,
     )

@@ -23,7 +23,7 @@ def generate_bias_visualization(
     grid = AutoDockGrid(spacing, nelements, center)
     geometry = calculate_bias_geometry(grid, bias, epsilon)
 
-    scene = build_bias_scene(geometry, mapfile_path, draw_options)
+    scene = build_bias_scene(geometry, draw_options)
 
     output_path = Path(output_tcl)
     output_path.parent.mkdir(parents=True, exist_ok=True)

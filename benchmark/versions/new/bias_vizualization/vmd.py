@@ -39,17 +39,9 @@ class _Representation:
 _GROUP_METADATA = {
     "bias_center": ("Bias center", "BCT"),
     "nearest_grid_point": ("Nearest grid point", "NGP"),
-    "center_to_nearest_grid_point": (
-        "Bias center to nearest grid point",
-        "COF",
-    ),
     "one_over_e_bias_surface": ("Bias 1/e isosurface", "BRS"),
-    "bias_radius": ("Bias radius", "BRA"),
     "epsilon_energy_surface": ("Epsilon energy isosurface", "EPS"),
-    "epsilon_radius": ("Epsilon radius", "EPA"),
     "grid_spacing": ("One grid-spacing step", "GSP"),
-    "fixed_candidate_cube": ("Fixed candidate cube", "CUB"),
-    "epsilon_grid_box": ("Epsilon-derived grid box", "BOX"),
     "accepted_low_fraction": ("Accepted points: low fraction", "ACY"),
     "accepted_medium_fraction": ("Accepted points: medium fraction", "ACO"),
     "accepted_high_fraction": ("Accepted points: high fraction", "ACR"),

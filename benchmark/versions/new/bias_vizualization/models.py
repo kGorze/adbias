@@ -14,8 +14,6 @@ type Edge3D = tuple[Point3D, Point3D]
 class DrawOptions:
     draw_candidate_points: bool = True
     draw_rejected_points: bool = False
-    draw_current_cube: bool = True
-    draw_corrected_box: bool = True
     accepted_point_radius: float = 0.045
     graphics_opacity: float = 0.35
 
@@ -141,7 +139,6 @@ type Primitive = Sphere | Line | Point
 @dataclass(frozen=True, slots=True)
 class Scene:
     objects: tuple[Primitive, ...]
-    report: tuple[str, ...]
 
 
 @dataclass(frozen=True, slots=True)
