@@ -11,7 +11,7 @@ type Edge3D = tuple[Point3D, Point3D]
 
 
 @dataclass(frozen=True, slots=True)
-class Draw:
+class DrawOptions:
     draw_candidate_points: bool = True
     draw_rejected_points: bool = False
     draw_current_cube: bool = True
@@ -66,9 +66,14 @@ class AutoDockGrid:
 
     @property
     def minimum(self) -> Point3D:
-        return tuple(
-            center - elements * self.spacing / 2.0
-            for center, elements in zip(self.center, self.nelements, strict=True)
+        cx, cy, cz = self.center
+        nx, ny, nz = self.nelements
+        half_spacing = self.spacing / 2.0
+
+        return (
+            cx - nx * half_spacing,
+            cy - ny * half_spacing,
+            cz - nz * half_spacing,
         )
 
 

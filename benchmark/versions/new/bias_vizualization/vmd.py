@@ -68,13 +68,13 @@ def render_primitive(primitive: Primitive) -> str:
 def render_tcl(
     scene: Scene,
     receptor_pdb: str | PathLike[str],
-    renderer_tcl: str | PathLike[str],
+    renderer_tcl_path: str | PathLike[str],
     scene_name: str,
     graphics_opacity: float,
 ) -> str:
     """Render a Scene as a standalone Tcl script for VMD."""
     receptor_path = Path(receptor_pdb).resolve()
-    renderer_path = Path(renderer_tcl).resolve()
+    renderer_path = Path(renderer_tcl_path).resolve()
     if not receptor_path.is_file():
         raise FileNotFoundError(f"receptor file does not exist: {receptor_path}")
     if not renderer_path.is_file():

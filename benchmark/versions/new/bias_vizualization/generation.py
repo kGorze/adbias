@@ -1,9 +1,9 @@
+from collections.abc import Sequence
 from os import PathLike
 from pathlib import Path
-from typing import Sequence
 
 from .geometry import calculate_bias_geometry
-from .models import AutoDockGrid, Bias, Draw, GeneratedVisualization
+from .models import AutoDockGrid, Bias, DrawOptions, GeneratedVisualization
 from .parsing import parse_autodock_mapfile, parse_bias_file
 from .scene import build_bias_scene
 from .vmd import render_tcl
@@ -14,22 +14,23 @@ def generate_bias_visualization(
     bias: Bias,
     receptor_pdb: str | PathLike[str],
     output_tcl: str | PathLike[str],
-    renderer_tcl: str | PathLike[str],
+    renderer_tcl_path: str | PathLike[str],
     scene_name: str,
     epsilon: float = 0.01,
-    draw: Draw | None = None,
+    draw_options: DrawOptions = DrawOptions(),
 ) -> Path:
     spacing, nelements, center = parse_autodock_mapfile(mapfile_path)
     grid = AutoDockGrid(spacing, nelements, center)
     geometry = calculate_bias_geometry(grid, bias, epsilon)
-    draw_settings = draw if draw is not None else Draw()
-    scene = build_bias_scene(geometry, mapfile_path, draw_settings)
+
+    scene = build_bias_scene(geometry, mapfile_path, draw_options)
+
     tcl_script = render_tcl(
         scene=scene,
         receptor_pdb=receptor_pdb,
-        renderer_tcl=renderer_tcl,
+        renderer_tcl_path=renderer_tcl_path,
         scene_name=scene_name,
-        graphics_opacity=draw_settings.graphics_opacity,
+        graphics_opacity=draw_options.graphics_opacity,
     )
 
     output_path = Path(output_tcl)
@@ -50,9 +51,9 @@ def _safe_filename_token(value: str) -> str:
 
 def generate_for_system(
     system_dir: str | PathLike[str],
-    renderer_tcl: str | PathLike[str],
+    renderer_tcl_path: str | PathLike[str],
     epsilon: float = 0.01,
-    draw: Draw | None = None,
+    draw_options: DrawOptions = DrawOptions(),
     output_directory_name: str = "bias_visualizations",
     map_filename: str = "receptor.A.map",
     bias_filename: str = "bias.bpf",
@@ -81,10 +82,10 @@ def generate_for_system(
             bias=bias,
             receptor_pdb=receptor_path,
             output_tcl=output_tcl,
-            renderer_tcl=renderer_tcl,
+            renderer_tcl_path=renderer_tcl_path,
             scene_name=scene_name,
             epsilon=epsilon,
-            draw=draw,
+            draw_options=draw_options,
         )
         generated.append(
             GeneratedVisualization(
@@ -99,10 +100,10 @@ def generate_for_system(
 
 def generate_for_all_systems(
     results_directory: str | PathLike[str],
-    renderer_tcl: str | PathLike[str],
+    renderer_tcl_path: str | PathLike[str],
     systems: Sequence[str] | None = None,
     epsilon: float = 0.01,
-    draw: Draw | None = None,
+    draw_options: DrawOptions = DrawOptions(),
     output_directory_name: str = "bias_visualizations",
     map_filename: str = "receptor.A.map",
     bias_filename: str = "bias.bpf",
@@ -130,9 +131,9 @@ def generate_for_all_systems(
         generated.extend(
             generate_for_system(
                 system_dir=results_path / system_name,
-                renderer_tcl=renderer_tcl,
+                renderer_tcl_path=renderer_tcl_path,
                 epsilon=epsilon,
-                draw=draw,
+                draw_options=draw_options,
                 output_directory_name=output_directory_name,
                 map_filename=map_filename,
                 bias_filename=bias_filename,

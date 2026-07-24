@@ -3,7 +3,7 @@ from os import PathLike
 from pathlib import Path
 
 from .geometry import add3
-from .models import BiasGeometry, Draw, Line, Point, Primitive, Scene, Sphere, Text
+from .models import BiasGeometry, DrawOptions, Line, Point, Primitive, Scene, Sphere, Text
 
 
 def fraction_color(fraction: float) -> str:
@@ -19,7 +19,7 @@ def fraction_color(fraction: float) -> str:
 def build_bias_scene(
     geometry: BiasGeometry,
     mapfile_path: str | PathLike[str],
-    draw: Draw,
+    draw_options: DrawOptions,
 ) -> Scene:
     """Convert calculated bias geometry into backend-independent primitives."""
     bias = geometry.bias
@@ -102,7 +102,7 @@ def build_bias_scene(
         )
     )
 
-    if draw.draw_current_cube:
+    if draw_options.draw_current_cube:
         objects.extend(
             Line(start, end, "gray") for start, end in geometry.current_box_edges
         )
@@ -120,7 +120,7 @@ def build_bias_scene(
             )
         )
 
-    if draw.draw_corrected_box:
+    if draw_options.draw_corrected_box:
         objects.extend(
             Line(start, end, "blue", style="dashed")
             for start, end in geometry.corrected_box_edges
@@ -135,16 +135,16 @@ def build_bias_scene(
             )
 
     for sampled_point in geometry.candidate_points:
-        if sampled_point.accepted and draw.draw_candidate_points:
+        if sampled_point.accepted and draw_options.draw_candidate_points:
             objects.append(
                 Sphere(
                     sampled_point.position,
-                    draw.accepted_point_radius,
+                    draw_options.accepted_point_radius,
                     fraction_color(sampled_point.fraction),
                     4,
                 )
             )
-        elif not sampled_point.accepted and draw.draw_rejected_points:
+        elif not sampled_point.accepted and draw_options.draw_rejected_points:
             objects.append(Point(sampled_point.position, "gray"))
 
     center_status = "yes" if geometry.center_is_on_grid else "no"
