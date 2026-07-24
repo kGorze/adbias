@@ -7,6 +7,7 @@ uzycie jako:
 - python interactions.py -i /sciezka/do/receptor.pdb -c A -r 22,54,61
 """
 import argparse
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -69,7 +70,7 @@ def main():
     parser.add_argument("-r", "--residues", required=True,
                          help="numery reszt oddzielone przecinkami (np. 22,54,61)")
     parser.add_argument("-o", "--out",
-                         help="plik wyjsciowy .txt (domyslnie results/<receptor>/interactions/<chain>_<reszty>.txt)")
+                         help="plik wyjsciowy .txt; plik .pdb powstaje obok niego z ta sama nazwa bazowa")
     args = parser.parse_args()
 
     receptor_pdb, label = resolve_receptor(args.receptor)
@@ -79,14 +80,17 @@ def main():
     else:
         residues_tag = args.residues.replace(",", "-")
         out_path = Path(C.RESULTS) / label / "interactions" / ("%s_%s.txt" % (args.chain, residues_tag))
+    pdb_out_path = out_path.with_suffix(".pdb")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as work_dir:
         sites_pdb = run_ideal_interaction_sites(receptor_pdb, args.chain, args.residues, work_dir)
         sites = parse_interaction_sites(sites_pdb)
+        shutil.copyfile(sites_pdb, pdb_out_path)
 
     write_report(sites, out_path, receptor_pdb, args.chain, args.residues)
     print("  %d miejsc oddzialywan -> %s" % (len(sites), out_path))
+    print("  miejsca oddzialywan PDB -> %s" % pdb_out_path)
 
 #TODO: receptor_prepared.pdb ma histydyny jako HIS (nie HIE/HID/HIP), więc boczny łańcuch His nie generuje donor/acceptor sites — tylko ring aromatyczny działa. Jeśli w miejscu aktywnym chcemy katalityczna His, trzeba by ręcznie przemianować resname w kopii PDB przed uruchomieniem albo zająć się tym w kodzie.
 

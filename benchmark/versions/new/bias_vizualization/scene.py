@@ -3,9 +3,8 @@ import math
 from .models import BiasGeometry, DrawOptions, Line, Point, Primitive, Scene, Sphere
 
 
+#frakcje są arbitralne i można je definiować na wiele sposobów
 def fraction_color(fraction: float) -> str:
-    if not math.isfinite(fraction) or not 0.0 <= fraction <= 1.0:
-        raise ValueError("fraction must be finite and in the range [0, 1]")
     if fraction >= 2.0 / 3.0:
         return "red"
     if fraction >= 1.0 / 3.0:

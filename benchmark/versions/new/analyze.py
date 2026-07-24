@@ -422,17 +422,19 @@ def plot_docking_scores(df):
     }
     targets = list(C.TARGETS)
     figure, axes = plt.subplots(
-        len(targets),
-        2,
-        figsize=(11, 4 * len(targets)),
+        len(targets), #jak dużo jest targetów, czyli ile wierszy
+        2, # ile chcemy wykresów w kolumnach
+        figsize=(11, 4 * len(targets)), #żeby było proporcjonalnie do ilości targetów
     )
+
+    number_of_bins = 50
 
     for target_index, target in enumerate(targets):
         target_scores = scores[scores["pdbid"] == target]
         bins = np.linspace(
             target_scores["top1_score"].min(),
             target_scores["top1_score"].max(),
-            11,
+            number_of_bins + 1,
         )
 
         for condition in C.CONDITIONS:
