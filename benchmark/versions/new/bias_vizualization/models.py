@@ -115,6 +115,7 @@ class Sphere:
     radius: float
     color: str
     resolution: int = 20
+    group: str = "spheres"
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,22 +125,17 @@ class Line:
     color: str
     width: int = 2
     style: str = "solid"
+    group: str = "lines"
 
 
 @dataclass(frozen=True, slots=True)
 class Point:
     position: Point3D
     color: str
+    group: str = "points"
 
 
-@dataclass(frozen=True, slots=True)
-class Text:
-    position: Point3D
-    label: str
-    size: float = 1.0
-
-
-type Primitive = Sphere | Line | Point | Text
+type Primitive = Sphere | Line | Point
 
 
 @dataclass(frozen=True, slots=True)

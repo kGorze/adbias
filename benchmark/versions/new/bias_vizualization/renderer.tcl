@@ -1,45 +1,66 @@
-# VMD backend. It only executes concrete drawing commands from generated Tcl.
+# VMD backend for separate receptor and reusable bias molecules.
 namespace eval ::bias_vizualization {
-    variable material_name "BiasVizMaterial"
+    variable material_name "BiasVisualization"
 }
 
-proc ::bias_vizualization::prepare {receptor_file scene_name opacity} {
-    variable material_name
-
+proc ::bias_vizualization::load_receptor {receptor_file molecule_name} {
     if {![file isfile $receptor_file]} {
-        error "Receptor file does not exist: $receptor_file"
-    }
-    if {$opacity <= 0.0 || $opacity > 1.0} {
-        error "Graphics opacity must be in the range (0, 1]"
+        error "Receptor PDB does not exist: $receptor_file"
     }
 
     set molecule [mol new $receptor_file type pdb waitfor all]
-    mol rename $molecule $scene_name
+    mol rename $molecule $molecule_name
+    return $molecule
+}
+
+proc ::bias_vizualization::load_bias {bias_file molecule_name opacity} {
+    variable material_name
+
+    if {![file isfile $bias_file]} {
+        error "Bias PDB does not exist: $bias_file"
+    }
+    if {$opacity <= 0.0 || $opacity > 1.0} {
+        error "Representation opacity must be in the range (0, 1]"
+    }
+
+    set molecule [mol new $bias_file type pdb waitfor all autobonds off]
+    mol rename $molecule $molecule_name
+    mol delrep 0 $molecule
+
+    set visualization [atomselect $molecule "segname BVIZ"]
+    if {[$visualization num] == 0} {
+        $visualization delete
+        error "Bias PDB does not contain the BVIZ segment"
+    }
+    $visualization set radius [$visualization get beta]
+    $visualization delete
 
     if {[lsearch -exact [material list] $material_name] < 0} {
         material add $material_name
     }
     material change opacity $material_name $opacity
-    graphics $molecule material $material_name
     return $molecule
 }
 
-proc ::bias_vizualization::sphere {molecule center radius color resolution} {
-    graphics $molecule color $color
-    graphics $molecule sphere $center radius $radius resolution $resolution
-}
+proc ::bias_vizualization::add_representation {
+    molecule label pdb_resname selection_name style color_name
+} {
+    variable material_name
 
-proc ::bias_vizualization::point {molecule position color} {
-    graphics $molecule color $color
-    graphics $molecule point $position
-}
+    set atoms [atomselect $molecule "resname $pdb_resname"]
+    if {[$atoms num] == 0} {
+        $atoms delete
+        error "No bias atoms found for representation: $label"
+    }
+    $atoms set resname $selection_name
+    $atoms delete
 
-proc ::bias_vizualization::line {molecule start end color width style} {
-    graphics $molecule color $color
-    graphics $molecule line $start $end width $width style $style
-}
-
-proc ::bias_vizualization::text {molecule position label size} {
-    graphics $molecule color white
-    graphics $molecule text $position $label size $size thickness 2
+    color Resname $selection_name $color_name
+    mol representation {*}$style
+    mol color ResName
+    mol selection "resname $selection_name"
+    mol material $material_name
+    mol addrep $molecule
+    set representation [expr {[molinfo $molecule get numreps] - 1}]
+    puts "VMD representation $representation: $label"
 }

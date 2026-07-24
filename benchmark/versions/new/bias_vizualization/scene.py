@@ -3,7 +3,7 @@ from os import PathLike
 from pathlib import Path
 
 from .geometry import add3
-from .models import BiasGeometry, DrawOptions, Line, Point, Primitive, Scene, Sphere, Text
+from .models import BiasGeometry, DrawOptions, Line, Point, Primitive, Scene, Sphere
 
 
 def fraction_color(fraction: float) -> str:
@@ -26,58 +26,47 @@ def build_bias_scene(
     grid = geometry.grid
     center = bias.center
     nearest = geometry.nearest_point
-    objects: list[Primitive] = []
+    objects: list[Primitive] = [
+        Sphere(center, 0.1, "purple", 20, "bias_center"),
+        Sphere(nearest, 0.08, "cyan", 16, "nearest_grid_point"),
+    ]
 
-    objects.extend(
-        (
-            Sphere(center, 0.1, "purple", 20),
-            Text(add3(center, (0.14, 0.14, 0.14)), "C: input bias center", 1.1),
-            Sphere(nearest, 0.08, "cyan", 16),
-            Text(
-                add3(nearest, (0.14, -0.18, 0.10)),
-                "G: nearest grid point / current cube center",
-            ),
-        )
-    )
     if geometry.center_grid_distance > 1.0e-9:
-        midpoint = tuple(
-            (left + right) / 2.0
-            for left, right in zip(center, nearest, strict=True)
-        )
-        objects.extend(
-            (
-                Line(center, nearest, "cyan", 3),
-                Text(
-                    add3(midpoint, (0.08, 0.08, 0.08)),
-                    f"delta = {geometry.center_grid_distance:.4f} A",
-                ),
+        objects.append(
+            Line(
+                center,
+                nearest,
+                "cyan",
+                3,
+                group="center_to_nearest_grid_point",
             )
         )
 
     radius_end = add3(center, (0.0, bias.radius, 0.0))
     objects.extend(
         (
-            Sphere(center, bias.radius, "green", 30),
-            Line(center, radius_end, "green", 3),
-            Text(
-                add3(radius_end, (0.08, 0.08, 0.08)),
-                f"d=r={bias.radius:.3f} A; f=1/e",
+            Sphere(
+                center,
+                bias.radius,
+                "green",
+                30,
+                "one_over_e_bias_surface",
             ),
+            Line(center, radius_end, "green", 3, group="bias_radius"),
         )
     )
 
     epsilon_end = add3(center, (0.0, 0.0, geometry.epsilon_radius))
     objects.extend(
         (
-            Sphere(center, geometry.epsilon_radius, "red", 30),
-            Line(center, epsilon_end, "red", 3),
-            Text(
-                add3(epsilon_end, (0.08, 0.08, 0.08)),
-                (
-                    f"R_eps={geometry.epsilon_radius:.4f} A; "
-                    f"|dE|={geometry.epsilon:.3f}"
-                ),
+            Sphere(
+                center,
+                geometry.epsilon_radius,
+                "red",
+                30,
+                "epsilon_energy_surface",
             ),
+            Line(center, epsilon_end, "red", 3, group="epsilon_radius"),
         )
     )
 
@@ -92,60 +81,45 @@ def build_bias_scene(
         nearest[1],
         nearest[2],
     )
-    objects.extend(
-        (
-            Line(nearest, spacing_end, "white", 3),
-            Text(
-                add3(spacing_end, (0.05, 0.05, 0.05)),
-                f"h={grid.spacing:.3f} A",
-            ),
-        )
-    )
+    objects.append(Line(nearest, spacing_end, "white", 3, group="grid_spacing"))
 
     if draw_options.draw_current_cube:
         objects.extend(
-            Line(start, end, "gray") for start, end in geometry.current_box_edges
+            Line(start, end, "gray", group="fixed_candidate_cube")
+            for start, end in geometry.current_box_edges
         )
         half_side_end = add3(nearest, (geometry.current_half_side, 0.0, 0.0))
-        objects.extend(
-            (
-                Line(nearest, half_side_end, "gray", 3),
-                Text(
-                    add3(half_side_end, (0.06, 0.06, 0.06)),
-                    (
-                        f"current L=N*h={geometry.current_half_intervals}*"
-                        f"{grid.spacing:.3f}={geometry.current_half_side:.3f} A"
-                    ),
-                ),
-            )
+        objects.append(
+            Line(nearest, half_side_end, "gray", 3, group="fixed_candidate_cube")
         )
 
     if draw_options.draw_corrected_box:
         objects.extend(
-            Line(start, end, "blue", style="dashed")
+            Line(start, end, "blue", style="dashed", group="epsilon_grid_box")
             for start, end in geometry.corrected_box_edges
         )
-        if geometry.corrected_box_edges:
-            label_position = geometry.corrected_box_edges[6][1]
-            objects.append(
-                Text(
-                    add3(label_position, (0.08, 0.08, 0.08)),
-                    "correct epsilon-derived grid box",
-                )
-            )
 
+    accepted_point_groups = {
+        "yellow": "accepted_low_fraction",
+        "orange": "accepted_medium_fraction",
+        "red": "accepted_high_fraction",
+    }
     for sampled_point in geometry.candidate_points:
         if sampled_point.accepted and draw_options.draw_candidate_points:
+            color = fraction_color(sampled_point.fraction)
             objects.append(
                 Sphere(
                     sampled_point.position,
                     draw_options.accepted_point_radius,
-                    fraction_color(sampled_point.fraction),
+                    color,
                     4,
+                    accepted_point_groups[color],
                 )
             )
         elif not sampled_point.accepted and draw_options.draw_rejected_points:
-            objects.append(Point(sampled_point.position, "gray"))
+            objects.append(
+                Point(sampled_point.position, "gray", "rejected_candidate_points")
+            )
 
     center_status = "yes" if geometry.center_is_on_grid else "no"
     exact_energy_status = (

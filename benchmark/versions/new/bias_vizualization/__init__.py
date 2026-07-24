@@ -21,11 +21,10 @@ from .models import (
     SampledPoint,
     Scene,
     Sphere,
-    Text,
 )
 from .parsing import parse_autodock_mapfile, parse_bias_file
 from .scene import build_bias_scene, fraction_color
-from .vmd import render_primitive, render_tcl
+from .vmd import render_bias_tcl, render_tcl, render_visualization_pdb
 
 
 __all__ = [
@@ -45,7 +44,6 @@ __all__ = [
     "SampledPoint",
     "Scene",
     "Sphere",
-    "Text",
     "add3",
     "build_bias_scene",
     "calculate_bias_geometry",
@@ -57,6 +55,7 @@ __all__ = [
     "nearest_grid_index",
     "parse_autodock_mapfile",
     "parse_bias_file",
-    "render_primitive",
+    "render_bias_tcl",
+    "render_visualization_pdb",
     "render_tcl",
 ]
