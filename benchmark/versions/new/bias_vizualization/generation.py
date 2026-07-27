@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from os import PathLike
 from pathlib import Path
 
 from .geometry import calculate_bias_geometry
@@ -19,19 +18,19 @@ class SystemFiles:
 
 
 def generate_bias_visualization(
-    mapfile_path: str | PathLike[str],
+    mapfile_path: str | Path,
     bias: Bias,
-    receptor_pdb: str | PathLike[str],
-    output_tcl: str | PathLike[str],
-    renderer_tcl_path: str | PathLike[str],
+    receptor_pdb: str | Path,
+    output_tcl: str | Path,
+    renderer_tcl_path: str | Path,
     scene_name: str,
     epsilon: float = 0.01,
     draw_options: DrawOptions = DrawOptions(),
 ) -> Path:
     spacing, nelements, center = parse_autodock_mapfile(mapfile_path)
     grid = AutoDockGrid(spacing, nelements, center)
-    geometry = calculate_bias_geometry(grid, bias, epsilon)
 
+    geometry = calculate_bias_geometry(grid, bias, epsilon)
     scene = build_bias_scene(geometry, draw_options)
 
     output_path = Path(output_tcl)
@@ -74,11 +73,11 @@ def _safe_filename_token(value: str) -> str:
 
 def generate_for_system(
     system: SystemFiles,
-    renderer_tcl_path: str | PathLike[str],
+    renderer_tcl_path: str | Path,
     *,
     epsilon: float = 0.01,
     draw_options: DrawOptions = DrawOptions(),
-    output_directory: str | PathLike[str],
+    output_directory: str | Path,
 ) -> tuple[GeneratedVisualization, ...]:
     """Generate visualizations for one explicitly defined system."""
     if not system.name:
@@ -118,11 +117,11 @@ def generate_for_system(
 
 def generate_for_systems(
     systems: Sequence[SystemFiles],
-    renderer_tcl_path: str | PathLike[str],
+    renderer_tcl_path: str | Path,
     *,
     epsilon: float = 0.01,
     draw_options: DrawOptions = DrawOptions(),
-    output_directory: str | PathLike[str],
+    output_directory: str | Path,
 ) -> tuple[GeneratedVisualization, ...]:
     """Generate visualizations in one output subdirectory per system."""
     if not systems:
@@ -156,7 +155,7 @@ def generate_for_systems(
 
 
 def discover_systems(
-    results_directory: str | PathLike[str],
+    results_directory: str | Path,
     *,
     map_filename: str = "receptor.A.map",
     bias_filename: str = "bias.bpf",
@@ -175,6 +174,9 @@ def discover_systems(
             receptor=directory / receptor_filename,
         )
         for directory in sorted(results_path.iterdir())
+
+        #system dopiero jest wykryty, jeżeli jest plik bias.bpf w katalogu, inne nie są brane pod uwagę
+        #TODO: można zmienić, żeby sprawdzało resztę plików. to jest zależne od preferencji, jednak to co robi się z receptorem albo mapą nie jest dla nas istotne
         if directory.is_dir() and (directory / bias_filename).is_file()
     )
     if not systems:

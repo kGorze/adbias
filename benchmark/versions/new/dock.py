@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os
+from pathlib import Path
 import sys
 import time
 from vina import Vina
@@ -38,23 +38,24 @@ def run_vina(maps_prefix, ligand, out_pdbqt, log_path, seed):
 
 
 def dock_target(pdbid):
-    tdir = os.path.join(C.RESULTS, pdbid)
-    ligand = os.path.join(tdir, "ligand.pdbqt")
+
+    tdir = Path(C.RESULTS) / pdbid
+    ligand = tdir / "ligand.pdbqt"
 
     #tworzymy mapy dla obu warunków, konwencjonalnego i z biasem
     maps = {
-        "conventional": os.path.join(tdir, "receptor"),
-        "biased":       os.path.join(tdir, "maps_biased", "receptor")}
+        "conventional": tdir / "receptor",
+        "biased":       tdir / "maps_biased" / "receptor"}
 
     for cond in C.CONDITIONS:
         total = 0.0
         for seed in C.SEEDS:
-            seed_dir = os.path.join(tdir, cond, "seed_%d" % seed)
-            os.makedirs(seed_dir, exist_ok=True)
+            seed_dir = tdir / cond / f"seed_{seed}"
+            seed_dir.mkdir(parents=True, exist_ok=True)
 
             total += run_vina(maps[cond], ligand,
-                              os.path.join(seed_dir, "out.pdbqt"),
-                              os.path.join(seed_dir, "vina.log"), seed)
+                              seed_dir / "out.pdbqt",
+                              seed_dir / "vina.log", seed)
         print("  %-12s: %d seedow, %.0f s" % (cond, len(C.SEEDS), total))
 
 

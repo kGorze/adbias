@@ -28,3 +28,52 @@ python3 -m benchmark.versions.new.bias_vizualization one \
   # interaction sites
 
   python interactions.py -i 3CS9 -c A -r 382
+
+
+
+# wykrywanie systemów 
+żeby to działało z wykrywaniem systemów, trzeba mieć je w results
+
+/bias_visuzalization
+/results
+  - /system1
+  - /system2
+  - /system ...
+  - /system n
+
+# stałe które są wpisane w kodzie
+
+1. 
+generate_bias_visualization( ...
+epsilon 0.01
+
+)
+
+2. 
+generate_for_system(... 
+epsilon: 0.01
+
+)
+
+3. 
+generate_for_systems(... 
+epsilon: 0.01
+
+)
+
+4. 
+_corrected_axis_range():
+tolerance = 1.0e-12
+
+5. 
+calculate_bias_geometry( ...
+epsilon 0.01)
+
+# discover systems
+
+w disocver systems jest ustalone tak, że nazwy muszą mieć konkretny format:
+```python
+    map_filename: str = "receptor.A.map",
+    bias_filename: str = "bias.bpf",
+    receptor_filename: str = "receptor_prepared.pdb",
+```

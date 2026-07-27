@@ -6,6 +6,20 @@ from pathlib import Path
 from .models import AutoDockMapHeader, Bias, GridShape, Point3D
 
 
+
+#parser jest dostosowany idealnie pod format pliku mapfile. tutaj jest przykład
+"""
+GRID_PARAMETER_FILE receptor.gpf
+GRID_DATA_FILE receptor.maps.fld
+MACROMOLECULE receptor.pdbqt
+SPACING 0.375
+NELEMENTS 90 72 68
+CENTER 29.025 2.847 52.761
+0
+0
+...
+"""
+#TODO: można zrobić to z większą starannością w sprawdzaniu pliku, żeby format był w stu procentach pewny
 def parse_autodock_mapfile(
     mapfile_path: str | PathLike[str],
 ) -> AutoDockMapHeader:
@@ -41,6 +55,7 @@ def parse_autodock_mapfile(
         float(center_fields[3]),
     )
 
+    #wartości muszą być w tych granicach
     if not math.isfinite(spacing) or spacing <= 0.0:
         raise ValueError(f"{path}:4: SPACING must be a finite positive number")
     if any(value <= 0 for value in nelements):
@@ -51,6 +66,11 @@ def parse_autodock_mapfile(
     return spacing, nelements, center
 
 
+#również jest bardzo sztywno zrobione, format musi być i powinien być dokładnie taki jaki jest w zazwyczaj
+"""
+x y z Vset r type
+30.620 -0.693 52.109 -1.50 1.00 don
+"""
 def parse_bias_file(bias_file_path: str | PathLike[str]) -> tuple[Bias, ...]:
     path = Path(bias_file_path)
     with path.open("r", encoding="utf-8") as file:
