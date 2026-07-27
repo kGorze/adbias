@@ -1,7 +1,9 @@
 from .generation import (
+    SystemFiles,
+    discover_systems,
     generate_bias_visualization,
-    generate_for_all_systems,
     generate_for_system,
+    generate_for_systems,
 )
 from .geometry import add3, calculate_bias_geometry, distance3, nearest_grid_index
 from .models import (
@@ -43,15 +45,17 @@ __all__ = [
     "Primitive",
     "SampledPoint",
     "Scene",
+    "SystemFiles",
     "Sphere",
     "add3",
     "build_bias_scene",
     "calculate_bias_geometry",
     "distance3",
+    "discover_systems",
     "fraction_color",
     "generate_bias_visualization",
-    "generate_for_all_systems",
     "generate_for_system",
+    "generate_for_systems",
     "nearest_grid_index",
     "parse_autodock_mapfile",
     "parse_bias_file",

@@ -1,11 +1,14 @@
+# zrozumienie plików biasu
 bias.tcl — ładuje receptor oraz bias jako dwa osobne molecule.
 bias_bias.tcl — samodzielny loader biasu do dowolnego otwartego systemu.
 bias_scene.pdb — zawiera wyłącznie 1132 pomocnicze atomy biasu, bez receptora.
 
 
+# wczytywanie plików biasu
 mol new inny_receptor.pdb
 source bias_bias.tcl
 
+# przykład użycia wizualizacji na systemach wykrywanych w moim przypadku 
 python3 -m benchmark.versions.new.bias_vizualization one \
   --map benchmark/versions/new/results/3CS9/receptor.A.map \
   --bias-file benchmark/versions/new/results/3CS9/bias.bpf \
@@ -19,3 +22,9 @@ python3 -m benchmark.versions.new.bias_vizualization one \
 
   python3 -m benchmark.versions.new.bias_vizualization all \
   --results-dir benchmark/versions/new/results
+
+
+
+  # interaction sites
+
+  python interactions.py -i 3CS9 -c A -r 382

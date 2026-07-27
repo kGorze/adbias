@@ -1,7 +1,11 @@
 import argparse
 from pathlib import Path
 
-from .generation import generate_bias_visualization, generate_for_all_systems
+from .generation import (
+    discover_systems,
+    generate_bias_visualization,
+    generate_for_systems,
+)
 from .models import DrawOptions
 from .parsing import parse_bias_file
 
@@ -84,16 +88,25 @@ def main() -> None:
         print(output)
         return
 
-    generated = generate_for_all_systems(
-        results_directory=arguments.results_dir,
-        renderer_tcl_path=arguments.renderer,
-        systems=arguments.systems,
-        epsilon=arguments.epsilon,
-        draw_options=draw_options,
-        output_directory_name=arguments.output_directory_name,
+    systems = discover_systems(
+        arguments.results_dir,
         map_filename=arguments.map_filename,
         bias_filename=arguments.bias_filename,
         receptor_filename=arguments.receptor_filename,
+    )
+    if arguments.systems is not None:
+        systems_by_name = {system.name: system for system in systems}
+        missing = [name for name in arguments.systems if name not in systems_by_name]
+        if missing:
+            raise ValueError(f"systems not found: {', '.join(missing)}")
+        systems = tuple(systems_by_name[name] for name in arguments.systems)
+
+    generated = generate_for_systems(
+        systems,
+        arguments.renderer,
+        epsilon=arguments.epsilon,
+        draw_options=draw_options,
+        output_directory=arguments.results_dir / arguments.output_directory_name,
     )
     for visualization in generated:
         print(
