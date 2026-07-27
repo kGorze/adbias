@@ -1,0 +1,25 @@
+#czym mamy zbudować paczkę
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+#metadane projektu
+[project]
+name = "bias-vizualization"
+version = "0.0.1"
+requires-python = ">=3.12"
+
+[project.scripts]
+bias-vizualization = "bias_vizualization.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+#trzeba wskazać konkretnie w jakim miejscu jest kod, wcześniej było to jako "."
+[tool.setuptools.packages.find]
+where = ["src"]
+
+#samo to, że to jest obok plików py nie oznacza, że plik będzie w wheel
+#również tutaj można dodawać wiele innych zasobów, jak dane albo templates
+[tool.setuptools.package-data]
+bias_vizualization = ["renderer.tcl"]

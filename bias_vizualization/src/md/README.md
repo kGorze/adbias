@@ -77,3 +77,38 @@ w disocver systems jest ustalone tak, że nazwy muszą mieć konkretny format:
     bias_filename: str = "bias.bpf",
     receptor_filename: str = "receptor_prepared.pdb",
 ```
+
+# czy można obecnie używać wielu biasów jednocześnie? 
+nie, przez to, że wczytywanie biasów jest na jednej reprezentacji
+
+# czy można robić wiele biasów na systemie?
+nie sprawdzone, autorzy wskazywali, że tak jednak wtedy jest tylko jedno minimum a biasy nie są kumulatywne. nie działa wyłącznie przypadek używania biasu aromatycznego
+
+# jak używać API?
+używać tylko metod które są bez "_*", czyli wszystko co jest w API
+
+```python
+from .api import (
+    SystemFiles,
+    discover_systems,
+    generate_bias_visualization,
+    generate_for_system,
+    generate_for_systems,
+    parse_bias_file,
+    renderer_path,
+)
+```
+
+# instalacja
+
+```bash
+python -m pip install ./bias_vizualization
+```
+
+
+po zmianie plikow zrodlowych znowu trzeba zainstalowac paczke
+
+```bash
+python -m pip install --editable \
+  ./benchmark/versions/new/bias_vizualization
+```

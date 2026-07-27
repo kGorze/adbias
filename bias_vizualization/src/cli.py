@@ -1,13 +1,14 @@
 import argparse
 from pathlib import Path
 
-from .generation import (
+from .api import (
     discover_systems,
     generate_bias_visualization,
     generate_for_systems,
+    parse_bias_file,
+    renderer_path,
 )
 from .models import DrawOptions
-from .parsing import parse_bias_file
 
 
 def _add_drawing_arguments(parser: argparse.ArgumentParser) -> None:
@@ -31,9 +32,8 @@ def _draw_options_from_arguments(arguments: argparse.Namespace) -> DrawOptions:
 
 
 def _argument_parser() -> argparse.ArgumentParser:
-    package_directory = Path(__file__).resolve().parent
-    default_renderer = package_directory / "renderer.tcl"
-    default_results = package_directory.parent / "results"
+    default_renderer = renderer_path()
+    default_results = Path.cwd() / "results"
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
 

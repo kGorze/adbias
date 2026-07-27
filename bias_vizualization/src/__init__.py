@@ -1,9 +1,11 @@
-from .generation import (
+from .api import (
     SystemFiles,
     discover_systems,
     generate_bias_visualization,
     generate_for_system,
     generate_for_systems,
+    parse_bias_file,
+    renderer_path,
 )
 from .geometry import add3, calculate_bias_geometry, distance3, nearest_grid_index
 from .models import (
@@ -24,7 +26,7 @@ from .models import (
     Scene,
     Sphere,
 )
-from .parsing import parse_autodock_mapfile, parse_bias_file
+from .parsing import parse_autodock_mapfile
 from .scene import build_bias_scene, fraction_color
 from .vmd import render_bias_tcl, render_tcl, render_visualization_pdb
 
@@ -62,4 +64,5 @@ __all__ = [
     "render_bias_tcl",
     "render_visualization_pdb",
     "render_tcl",
+    "renderer_path",
 ]
