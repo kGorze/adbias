@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 from pathlib import Path
-
 
 type GridShape = tuple[int, int, int]
 type Point3D = tuple[float, float, float]

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 HERE = Path(__file__).resolve().parent
 
 # Python 3 toolchain: Meeko, molscrub, RDKit, ProDy, Vina, SciPy i pandas.

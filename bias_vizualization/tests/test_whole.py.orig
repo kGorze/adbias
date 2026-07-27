@@ -1,0 +1,38 @@
+
+#TODO: obecnie testy są bardzo ograniczone, jednak, jeżeli paczka będzie sprawiać problemy to rzeczy jakie będą powodować te problemy będą testowane i poprawiane
+
+from pathlib import Path
+
+
+from bias_vizualization import (
+    renderer_path,
+    discover_systems,
+    generate_for_systems,
+    generate_for_system,
+    parse_bias_file,
+    generate_bias_visualization,
+)
+
+def test_whole():
+    source = Path(__file__).parent / "example_results" / "3CS9"
+    output = Path(__file__) / "example_results" / "3CS9_output"
+
+    bias = parse_bias_file(source)
+    result = generate_bias_visualization(
+        mapfile_path=source / "receptor.A.map",
+        bias=bias[0],
+        receptor_pdb=source / "receptor_prepared.pdb",
+        output_tcl=output / "bias.tcl",
+        renderer_tcl_path=renderer_path(),
+        scene_name="test_scene",
+    )
+
+    expected_files = (
+        result,
+        result.with_name("bias_001_bias.tcl"),
+        result.with_name("bias_001_scene.pdb"),
+    )
+
+    for path in expected_files:
+        assert path.is_file()
+        assert path.stat().st_size > 0

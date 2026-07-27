@@ -5,10 +5,14 @@ bias_scene.pdb — zawiera wyłącznie 1132 pomocnicze atomy biasu, bez receptor
 
 
 # wczytywanie plików biasu
+
+```vmd
 mol new inny_receptor.pdb
 source bias_bias.tcl
+```
 
 # przykład użycia wizualizacji na systemach wykrywanych w moim przypadku 
+```bash
 python3 -m benchmark.versions.new.bias_vizualization one \
   --map benchmark/versions/new/results/3CS9/receptor.A.map \
   --bias-file benchmark/versions/new/results/3CS9/bias.bpf \
@@ -22,13 +26,14 @@ python3 -m benchmark.versions.new.bias_vizualization one \
 
   python3 -m benchmark.versions.new.bias_vizualization all \
   --results-dir benchmark/versions/new/results
+```
 
 
+# interaction sites
 
-  # interaction sites
-
-  python interactions.py -i 3CS9 -c A -r 382
-
+```bash
+python interactions.py -i 3CS9 -c A -r 382
+```
 
 
 # wykrywanie systemów 
@@ -44,30 +49,38 @@ python3 -m benchmark.versions.new.bias_vizualization one \
 # stałe które są wpisane w kodzie
 
 1. 
+```python
 generate_bias_visualization( ...
 epsilon 0.01
 
 )
-
+```
 2. 
+```python
 generate_for_system(... 
 epsilon: 0.01
 
 )
+```
 
 3. 
+```python
 generate_for_systems(... 
 epsilon: 0.01
 
 )
-
+```
 4. 
+```python
 _corrected_axis_range():
 tolerance = 1.0e-12
+```
 
 5. 
+```python
 calculate_bias_geometry( ...
 epsilon 0.01)
+```
 
 # discover systems
 
@@ -111,4 +124,15 @@ po zmianie plikow zrodlowych znowu trzeba zainstalowac paczke
 ```bash
 python -m pip install --editable \
   ./benchmark/versions/new/bias_vizualization
+```
+
+
+# instalacja jako dev, czy tylko, żeby robić testy
+tylko test
+```bash
+pip install -e ".[test]"
+```
+test + dev(ruff,mypy)
+```bash
+pip install -e ".[dev]"
 ```

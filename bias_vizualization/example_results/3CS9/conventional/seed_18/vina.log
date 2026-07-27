@@ -1,0 +1,13 @@
+maps /home/kgorzelanczyk/adbias/benchmark/versions/new/results/3CS9/receptor
+ligand /home/kgorzelanczyk/adbias/benchmark/versions/new/results/3CS9/ligand.pdbqt
+seed 18
+exhaustiveness 32
+num_modes 20
+mode affinity (kcal/mol)
+   1    -14.418
+   2    -14.150
+   3    -13.322
+   4    -12.358
+   5    -12.203
+   6    -11.552
+   7    -11.485

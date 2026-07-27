@@ -1,3 +1,4 @@
+#nie trzeba robić dependencies, ponieważ są w stdlib pythona
 import argparse
 from pathlib import Path
 

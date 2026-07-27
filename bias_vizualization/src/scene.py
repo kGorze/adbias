@@ -1,5 +1,3 @@
-import math
-
 from .models import BiasGeometry, DrawOptions, Line, Point, Primitive, Scene, Sphere
 
 

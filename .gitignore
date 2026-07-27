@@ -6,3 +6,12 @@ benchmark/versions/new/__pycache__/
 benchmark/versions/new/results/
 bias_vizualization/bias_vizualization.egg-info
 bias_vizualization/src/__pycache__
+
+
+build/
+dist/
+*.egg-info/
+
+#pytest cache i ruff cache
+.*_cache/
+bias_vizualization/tests/__pycache__/

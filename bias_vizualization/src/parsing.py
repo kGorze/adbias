@@ -1,11 +1,9 @@
+#nie trzeba robić dependencies, ponieważ są w stdlib pythona
 import math
 from itertools import islice
-from os import PathLike
 from pathlib import Path
 
 from .models import AutoDockMapHeader, Bias, GridShape, Point3D
-
-
 
 #parser jest dostosowany idealnie pod format pliku mapfile. tutaj jest przykład
 """
@@ -21,7 +19,7 @@ CENTER 29.025 2.847 52.761
 """
 #TODO: można zrobić to z większą starannością w sprawdzaniu pliku, żeby format był w stu procentach pewny
 def parse_autodock_mapfile(
-    mapfile_path: str | PathLike[str],
+    mapfile_path: str | Path,
 ) -> AutoDockMapHeader:
     """Read SPACING, NELEMENTS and CENTER from fixed map header lines 4-6."""
     path = Path(mapfile_path)
@@ -71,7 +69,7 @@ def parse_autodock_mapfile(
 x y z Vset r type
 30.620 -0.693 52.109 -1.50 1.00 don
 """
-def parse_bias_file(bias_file_path: str | PathLike[str]) -> tuple[Bias, ...]:
+def parse_bias_file(bias_file_path: str | Path) -> tuple[Bias, ...]:
     path = Path(bias_file_path)
     with path.open("r", encoding="utf-8") as file:
         header = file.readline().split()

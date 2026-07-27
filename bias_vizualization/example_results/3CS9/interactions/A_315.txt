@@ -1,0 +1,15 @@
+# receptor  /home/kgorzelanczyk/adbias/benchmark/versions/new/results/3CS9/receptor_prepared.pdb
+# chain     A
+# residues  315
+# n_sites   9
+#
+#index     type              x         y         z
+1          donor        30.994    -7.310    51.969
+2          donor        31.022    -7.519    51.008
+3          donor        30.646    -7.423    50.104
+4          donor        30.570    -6.853    52.729
+5          donor        29.862    -6.270    53.085
+6          acceptor     26.151    -3.615    54.736
+7          donor        30.234    -4.460    50.390
+8          donor        29.486    -1.449    50.389
+9          acceptor     30.101    -2.893    54.016

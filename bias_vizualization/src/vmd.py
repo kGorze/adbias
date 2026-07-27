@@ -1,6 +1,7 @@
-from dataclasses import dataclass
+
+#nie trzeba robić dependencies, ponieważ są w stdlib pythona
 import math
-from os import PathLike
+from dataclasses import dataclass
 from pathlib import Path
 
 from .models import Line, Point, Point3D, Primitive, Scene, Sphere
@@ -184,8 +185,8 @@ def render_visualization_pdb(scene: Scene) -> str:
 
 def render_bias_tcl(
     scene: Scene,
-    visualization_pdb: str | PathLike[str],
-    renderer_tcl_path: str | PathLike[str],
+    visualization_pdb: str | Path,
+    renderer_tcl_path: str | Path,
     bias_name: str,
     graphics_opacity: float,
 ) -> str:
@@ -225,9 +226,9 @@ def render_bias_tcl(
 
 
 def render_tcl(
-    receptor_pdb: str | PathLike[str],
-    bias_tcl: str | PathLike[str],
-    renderer_tcl_path: str | PathLike[str],
+    receptor_pdb: str | Path,
+    bias_tcl: str | Path,
+    renderer_tcl_path: str | Path,
     scene_name: str,
 ) -> str:
     """Load receptor and source an independently reusable bias overlay."""

@@ -1,18 +1,9 @@
 # Przykłady użycia API
 
-## Instalacja
-
 Pakiet wymaga Pythona 3.12 lub nowszego. Z katalogu repozytorium:
 
 ```bash
-python -m pip install ./benchmark/versions/new/bias_vizualization
-```
-
-Podczas rozwijania implementacji warto użyć instalacji edytowalnej. Zmiany w
-kodzie będą wtedy widoczne bez ponownej instalacji:
-
-```bash
-python -m pip install --editable ./benchmark/versions/new/bias_vizualization
+python -m pip install ./bias_vizualization
 ```
 
 Nazwa dystrybucji używana przez `pip` to `bias-vizualization`, a nazwa modułu
@@ -118,35 +109,6 @@ systems = discover_systems(
     receptor_filename="protein.pdb",
 )
 ```
-
-## Niższy poziom API
-
-Obliczenia i renderowanie można rozdzielić, aby eksperymentować z budową sceny
-bez uruchamiania CLI:
-
-```python
-from bias_vizualization import (
-    AutoDockGrid,
-    DrawOptions,
-    build_bias_scene,
-    calculate_bias_geometry,
-    parse_autodock_mapfile,
-    parse_bias_file,
-    render_visualization_pdb,
-)
-
-spacing, nelements, center = parse_autodock_mapfile("grid.map")
-grid = AutoDockGrid(spacing, nelements, center)
-bias = parse_bias_file("biases.bpf")[0]
-geometry = calculate_bias_geometry(grid, bias, epsilon=0.01)
-scene = build_bias_scene(geometry, DrawOptions())
-pdb_text = render_visualization_pdb(scene)
-```
-
-Stabilnym punktem wejścia dla aplikacji jest `bias_vizualization.api` oraz
-symbole eksportowane z `bias_vizualization`. CLI korzysta z tej samej warstwy.
-Moduły `generation`, `geometry`, `scene` i `vmd` są implementacją, którą można
-zmieniać bez zmiany sygnatur publicznej fasady.
 
 ## CLI
 

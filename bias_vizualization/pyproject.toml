@@ -9,17 +9,40 @@ name = "bias-vizualization"
 version = "0.0.1"
 requires-python = ">=3.12"
 
+[project.optional-dependencies]
+test = [
+    "pytest"
+]
+
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+
 [project.scripts]
 bias-vizualization = "bias_vizualization.cli:main"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+packages = [
+    "bias_vizualization",
+    "bias_vizualization.example_results",
+]
 
-#trzeba wskazać konkretnie w jakim miejscu jest kod, wcześniej było to jako "."
-[tool.setuptools.packages.find]
-where = ["src"]
+#rozwiazanie problemu z ruff
+[tool.ruff]
+
+exclude = [
+    "build",
+    "dist",
+]
+
+[tool.setuptools.package-dir]
+bias_vizualization = "src"
+"bias_vizualization.example_results" = "example_results"
 
 #samo to, że to jest obok plików py nie oznacza, że plik będzie w wheel
 #również tutaj można dodawać wiele innych zasobów, jak dane albo templates
 [tool.setuptools.package-data]
 bias_vizualization = ["renderer.tcl"]
+"bias_vizualization.example_results" = ["**/*"]

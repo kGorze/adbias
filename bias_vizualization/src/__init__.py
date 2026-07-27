@@ -30,7 +30,6 @@ from .parsing import parse_autodock_mapfile
 from .scene import build_bias_scene, fraction_color
 from .vmd import render_bias_tcl, render_tcl, render_visualization_pdb
 
-
 __all__ = [
     "AutoDockGrid",
     "AutoDockMapHeader",
@@ -47,13 +46,13 @@ __all__ = [
     "Primitive",
     "SampledPoint",
     "Scene",
-    "SystemFiles",
     "Sphere",
+    "SystemFiles",
     "add3",
     "build_bias_scene",
     "calculate_bias_geometry",
-    "distance3",
     "discover_systems",
+    "distance3",
     "fraction_color",
     "generate_bias_visualization",
     "generate_for_system",
@@ -62,7 +61,7 @@ __all__ = [
     "parse_autodock_mapfile",
     "parse_bias_file",
     "render_bias_tcl",
-    "render_visualization_pdb",
     "render_tcl",
+    "render_visualization_pdb",
     "renderer_path",
 ]
