@@ -24,10 +24,7 @@ dev = [
 bias-vizualization = "bias_vizualization.cli:main"
 
 [tool.setuptools]
-packages = [
-    "bias_vizualization",
-    "bias_vizualization.example_results",
-]
+package-dir = {"" = "src"}
 
 #rozwiazanie problemu z ruff
 [tool.ruff]
@@ -37,12 +34,10 @@ exclude = [
     "dist",
 ]
 
-[tool.setuptools.package-dir]
-bias_vizualization = "src"
-"bias_vizualization.example_results" = "example_results"
+[tool.setuptools.packages.find]
+where = ["src"]
 
 #samo to, że to jest obok plików py nie oznacza, że plik będzie w wheel
 #również tutaj można dodawać wiele innych zasobów, jak dane albo templates
 [tool.setuptools.package-data]
 bias_vizualization = ["renderer.tcl"]
-"bias_vizualization.example_results" = ["**/*"]

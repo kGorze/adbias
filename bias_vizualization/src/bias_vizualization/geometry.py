@@ -1,8 +1,14 @@
-#nie trzeba robić dependencies, ponieważ są w stdlib pythona
 import math
 
-from .models import AutoDockGrid, Bias, BiasGeometry, Edge3D, Index3D, Point3D, SampledPoint
-
+from .models import (
+    AutoDockGrid,
+    Bias,
+    BiasGeometry,
+    Edge3D,
+    Index3D,
+    Point3D,
+    SampledPoint,
+)
 
 #typy
 type AxisRange = tuple[int, int]

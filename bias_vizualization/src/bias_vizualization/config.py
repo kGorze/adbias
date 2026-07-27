@@ -1,6 +1,4 @@
-#nie trzeba robić dependencies, ponieważ są w stdlib pythona
 from pathlib import Path
-
 
 HERE = Path(__file__).resolve().parent
 
